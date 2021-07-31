@@ -22,5 +22,8 @@ async def on_groupmessage(app: Mirai, ev):
     # ev对应每一个事件的返回值
     if str(ev.messageChain) == "Hello":
         await app.sendGroupMessage(ev.group, [Plain("Hi")])
+        
+if __name__ == '__main__':
+    mirai_app.run()
 ```
 
