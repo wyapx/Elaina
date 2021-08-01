@@ -56,7 +56,7 @@ class Quote(MessageModel):
     origin: MessageChain
 
     def __str__(self):
-        return f"[Quote id={self.id}]"
+        return f"[Quote::id={self.id}]"
 
 
 class NodeInfo(BaseModel):

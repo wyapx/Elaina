@@ -21,7 +21,7 @@ class Source(MessageModel):
         return self.id
 
     def __str__(self):
-        return f"[Source: {self.id}]"
+        return f"[Source::id={self.id}]"
 
 
 class Plain(MessageModel):
@@ -66,7 +66,7 @@ class Face(MessageModel):
         )
 
     def __str__(self):
-        return f"[Face id={self.faceId} name='{self.name}']"
+        return f"[Face::id={self.faceId},name='{self.name}']"
 
 
 class Image(MessageModel, RemoteResource):
@@ -94,7 +94,7 @@ class Image(MessageModel, RemoteResource):
         return UnpreparedResource(Image, "uploadImage", path=path)
 
     def __str__(self):
-        return f"[Image id='{self.imageId}']"
+        return f"[Image::id='{self.imageId}']"
 
 
 class FlashImage(Image):
@@ -107,7 +107,7 @@ class FlashImage(Image):
         return UnpreparedResource(FlashImage, "uploadImage", path=path)
 
     def __str__(self):
-        return f"[FlashImage id='{self.imageId}']"
+        return f"[FlashImage::id='{self.imageId}']"
 
 
 class Voice(MessageModel, RemoteResource):
@@ -135,7 +135,7 @@ class Voice(MessageModel, RemoteResource):
         return UnpreparedResource(Voice, "uploadVoice", path=path)
 
     def __str__(self):
-        return f"[Voice id='{self.voiceId}']"
+        return f"[Voice::id='{self.voiceId}']"
 
 
 class Xml(MessageModel):
@@ -146,7 +146,7 @@ class Xml(MessageModel):
         super(Xml, self).__init__(xml=xml)
 
     def __str__(self):
-        return f"[Xml '{self.xml}']"
+        return f"[Xml::xml='{self.xml}']"
 
 
 class Json(MessageModel):
@@ -171,7 +171,7 @@ class Json(MessageModel):
         return data
 
     def __str__(self):
-        return f"[Json '{self.Json}']"
+        return f"[Json::json='{self.Json}']"
 
 
 class App(MessageModel):
@@ -182,7 +182,7 @@ class App(MessageModel):
         super(App, self).__init__(content=content)
 
     def __str__(self):
-        return f"[App content='{self.content}']"
+        return f"[App::content='{self.content}']"
 
 
 class Poke(MessageModel):
@@ -193,7 +193,7 @@ class Poke(MessageModel):
         super(Poke, self).__init__(name=name)
 
     def __str__(self):
-        return f"[Xml name='{self.name}']"
+        return f"[Xml::name='{self.name}']"
 
 
 class Dice(MessageModel):
@@ -211,7 +211,7 @@ class Dice(MessageModel):
         return self.value
 
     def __str__(self):
-        return f"[Dice value='{self.value}']"
+        return f"[Dice::value='{self.value}']"
 
 
 class MusicShare(MessageModel):
@@ -225,17 +225,21 @@ class MusicShare(MessageModel):
     brief: str
 
     def __str__(self):
-        return f"[MusicShare title='{self.title}' musicUrl='{self.musicUrl}']"
+        return f"[MusicShare::title='{self.title}',musicUrl='{self.musicUrl}']"
 
 
 class File(MessageModel):
+    """
+    未完成
+    请勿使用
+    """
     type: MessageModelTypes = "File"
     id: int
     name: str
     size: Optional[int]
 
     def __str__(self):
-        return f"[File name='{self.name}']"
+        return f"[File::name='{self.name}']"
 
     @staticmethod
     def from_path(path: str):

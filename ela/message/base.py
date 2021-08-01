@@ -48,6 +48,11 @@ class RemoteResource(BaseModel):
     def from_path(path: str):
         pass
 
+    @staticmethod
+    @abstractmethod
+    def from_io():
+        pass
+
 
 class UnpreparedResource:
     __slots__ = ["resource", "action", "_kwargs"]
