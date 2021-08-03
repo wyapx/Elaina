@@ -8,7 +8,7 @@ import aiohttp
 from . import method
 from .component.friend import Friend, FriendList, Profile
 from .component.group import Group, GroupList, GroupMemberList
-from .message.base import MessageModel
+from .message.base import MessageModel, RemoteResource, UnpreparedResource
 from .message.chain import MessageChain
 from .message.models import Source
 from .message.type import GroupMessage, FriendMessage, TempMessage
@@ -69,7 +69,7 @@ class API:
     async def sendGroupMessage(
             self,
             group: Union[int, Group],
-            chain: Union[MessageChain, List[MessageModel]],
+            chain: Union[MessageChain, List[Union[MessageModel, RemoteResource, UnpreparedResource]]],
             *, quote_msg: Union[int, Source] = None
     ) -> int:
         if isinstance(chain, list):
@@ -87,7 +87,7 @@ class API:
     async def sendFriendMessage(
             self,
             friend: Union[int, Friend],
-            chain: Union[MessageChain, List[MessageModel]],
+            chain: Union[MessageChain, List[Union[MessageModel, RemoteResource, UnpreparedResource]]],
             *, quote_msg: Union[int, Source] = None
     ) -> int:
         if isinstance(chain, list):
@@ -106,7 +106,7 @@ class API:
             self,
             group: Union[int, Group],
             qq: int,
-            chain: Union[MessageChain, List[MessageModel]],
+            chain: Union[MessageChain, List[Union[MessageModel, RemoteResource, UnpreparedResource]]],
             *, quote_msg: Union[int, Source] = None
     ) -> int:
         if isinstance(chain, list):

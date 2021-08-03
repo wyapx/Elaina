@@ -1,7 +1,7 @@
 import asyncio
 import json
 import logging
-from typing import Callable, AnyStr, Any
+from typing import Callable, Any, Optional
 
 import aiohttp
 from urllib import parse
@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 class Network:
-    def __init__(self, url: str, qq: int, verify_key: AnyStr, *, loop=None):
+    def __init__(self, url: str, qq: int, verify_key: str, *, loop=None):
         if not loop:
             loop = asyncio.get_event_loop()
         self.url = url
@@ -23,7 +23,7 @@ class Network:
         self.__stop = False
 
     @property
-    def session_key(self) -> str:
+    def session_key(self) -> Optional[str]:
         return self.__session_key
 
     def __join_url(self, target: str, params: dict = None, *, with_key=False) -> str:
@@ -118,7 +118,7 @@ class _HTTP:
     弃用的类
     里面的功能可以正常使用
     """
-    def __init__(self, url: str, qq: int, verify_key: AnyStr, *, loop=None):
+    def __init__(self, url: str, qq: int, verify_key: str, *, loop=None):
         if not loop:
             loop = asyncio.get_event_loop()
         self.url = url

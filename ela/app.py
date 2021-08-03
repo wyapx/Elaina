@@ -1,5 +1,6 @@
 import asyncio
 import logging
+from typing import Dict, Callable
 
 from .api import API
 from .event import events
@@ -13,7 +14,7 @@ logger = logging.getLogger(__name__)
 class Mirai(API):
     def __init__(self, baseurl: str, qq: int, verify_key: str, *, loop=None):
         super().__init__(baseurl, qq, verify_key, loop=loop)
-        self._route = {}
+        self._route: Dict[str, Callable] = {}
 
         self._timer = Timer(loop=loop)
 

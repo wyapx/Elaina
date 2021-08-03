@@ -2,7 +2,7 @@ import time
 
 from .models import message_model
 from .base import MessageModel, RemoteResource, MessageModelTypes
-from typing import List, Union, Type, Optional, Any
+from typing import List, Union, Type, Optional, Any, Tuple, Generator
 from pydantic import BaseModel, validator
 
 
@@ -21,11 +21,17 @@ class MessageChain(BaseModel):
                 raise ValueError(item)
         return res
 
-    def get_first_model(self, model_type: Type[Union[RemoteResource, MessageModel]])\
+    def get_first_model(self, model_type: Tuple[Type[Union[RemoteResource, MessageModel]]])\
             -> Union[MessageModel, RemoteResource, None]:
         for item in self.__root__:
             if isinstance(item, model_type):
                 return item
+
+    def get_all_model(self, model_type: Tuple[Type[Union[RemoteResource, MessageModel]]])\
+            -> Generator[Union[RemoteResource, MessageModel], None, None]:
+        for item in self.__root__:
+            if isinstance(item, model_type):
+                yield item
 
     def __add__(self, value):
         if isinstance(value, MessageModel):
@@ -41,6 +47,9 @@ class MessageChain(BaseModel):
     def __getitem__(self, index):
         return self.__root__[index]
 
+    def __len__(self):
+        return len(self.__root__)
+
     def __str__(self):
         return "".join([str(item) for item in self.__root__[1:]])
 
@@ -48,7 +57,7 @@ class MessageChain(BaseModel):
 
 
 class Quote(MessageModel):
-    type: MessageModelTypes = "Quote"
+    type = MessageModelTypes.Quote
     id: int
     groupId: int
     senderId: int
@@ -68,7 +77,7 @@ class NodeInfo(BaseModel):
 
 
 class ForwardMessage(MessageModel):
-    type: MessageModelTypes = "Forward"
+    type = MessageModelTypes.Forward
     nodeList: List[NodeInfo] = []
 
     def create_node(self,

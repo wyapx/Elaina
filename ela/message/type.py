@@ -6,28 +6,29 @@ from ela.component.friend import Friend
 from ela.component.group import Member, Group
 
 
+class Client(BaseModel):
+    id: int
+    platform: Optional[str]
+
+
 class MessageType(BaseModel):
     type: str
     messageChain: Optional[MessageChain]
-    sender: Union[Friend, Member]
+    sender: Union[Friend, Member, Client]
 
     def __eq__(self, other):
         return str(self.messageChain) == other
 
     @property
-    def source(self) -> Source:
-        return self.messageChain[0]
+    def source(self) -> Optional[Source]:
+        if len(self.messageChain):
+            return self.messageChain[0]
 
     @property
     def group(self) -> Optional[Group]:
         if isinstance(self.sender, Member):
             return self.sender.group
         return None
-
-
-class Client(BaseModel):
-    id: int
-    platform: Optional[str]
 
 
 class FriendMessage(MessageType):

@@ -7,7 +7,7 @@ from ..types import PokeType
 
 
 class Source(MessageModel):
-    type: MessageModelTypes = "Source"
+    type = MessageModelTypes.Source
     id: int
     time: int
 
@@ -25,7 +25,7 @@ class Source(MessageModel):
 
 
 class Plain(MessageModel):
-    type: MessageModelTypes = "Plain"
+    type = MessageModelTypes.Plain
     text: str
 
     def __init__(self, text: str, **_):
@@ -36,7 +36,7 @@ class Plain(MessageModel):
 
 
 class At(MessageModel):
-    type: MessageModelTypes = "At"
+    type = MessageModelTypes.At
     target: int
     display: Optional[str]
 
@@ -48,14 +48,14 @@ class At(MessageModel):
 
 
 class AtAll(MessageModel):
-    type: MessageModelTypes = "AtAll"
+    type = MessageModelTypes.AtAll
 
     def __str__(self):
         return "[AtAll]"
 
 
 class Face(MessageModel):
-    type: MessageModelTypes = "Face"
+    type = MessageModelTypes.Face
     faceId: int
     name: str
 
@@ -70,7 +70,7 @@ class Face(MessageModel):
 
 
 class Image(MessageModel, RemoteResource):
-    type: MessageModelTypes = "Image"
+    type = MessageModelTypes.Image
     imageId: Optional[str]
 
     def __init__(self, imageId=None, path=None, url=None, base64=None, **_):
@@ -98,7 +98,7 @@ class Image(MessageModel, RemoteResource):
 
 
 class FlashImage(Image):
-    type: MessageModelTypes = "FlashImage"
+    type = MessageModelTypes.FlashImage
 
     @staticmethod
     def from_path(path: str):
@@ -111,7 +111,7 @@ class FlashImage(Image):
 
 
 class Voice(MessageModel, RemoteResource):
-    type: MessageModelTypes = "Voice"
+    type = MessageModelTypes.Voice
     voiceId: Optional[str]
 
     def __init__(self, voiceId=None, path=None, url=None, base64=None, **_):
@@ -139,7 +139,7 @@ class Voice(MessageModel, RemoteResource):
 
 
 class Xml(MessageModel):
-    type: MessageModelTypes = "Xml"
+    type = MessageModelTypes.Xml
     xml: str
 
     def __init__(self, xml: str, **_):
@@ -154,7 +154,7 @@ class Json(MessageModel):
     废弃的方法，请使用App代替
     """
 
-    type: MessageModelTypes = "Json"
+    type = MessageModelTypes.Json
     Json: str
 
     def __init__(self, json: str, **_):
@@ -175,7 +175,7 @@ class Json(MessageModel):
 
 
 class App(MessageModel):
-    type: MessageModelTypes = "App"
+    type = MessageModelTypes.App
     content: str
 
     def __init__(self, content: str, **_):
@@ -186,7 +186,7 @@ class App(MessageModel):
 
 
 class Poke(MessageModel):
-    type: MessageModelTypes = "Poke"
+    type = MessageModelTypes.Poke
     name: str
 
     def __init__(self, name: PokeType, **_):
@@ -197,7 +197,7 @@ class Poke(MessageModel):
 
 
 class Dice(MessageModel):
-    type: MessageModelTypes = "Dice"
+    type = MessageModelTypes.Dice
     value: int
 
     def __init__(self, value: Literal[1, 2, 3, 4, 5, 6], **_):
@@ -215,7 +215,7 @@ class Dice(MessageModel):
 
 
 class MusicShare(MessageModel):
-    type: MessageModelTypes = "MusicShare"
+    type = MessageModelTypes.MusicShare
     kind: str
     title: str
     summary: str
@@ -233,7 +233,7 @@ class File(MessageModel):
     未完成
     请勿使用
     """
-    type: MessageModelTypes = "File"
+    type = MessageModelTypes.File
     id: int
     name: str
     size: Optional[int]

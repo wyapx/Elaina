@@ -32,7 +32,7 @@ async def prepare_chain(
         chain: List[Union[MessageModel, RemoteResource, UnpreparedResource]]
 ) -> List[Union[MessageModel, RemoteResource]]:
     if isinstance(chain, list):
-        new_chain = []
+        new_chain: List[Union[MessageModel, RemoteResource]] = []
         for item in chain:
             if isinstance(item, UnpreparedResource):
                 new_chain.append(await item.prepare(network, utype))
@@ -40,4 +40,4 @@ async def prepare_chain(
                 new_chain.append(item)
         return new_chain
     else:
-        return chain
+        raise TypeError("expect list chain, but %s got" % type(chain))
