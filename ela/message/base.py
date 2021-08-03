@@ -48,10 +48,10 @@ class RemoteResource(BaseModel):
     def from_path(path: str):
         pass
 
-    @staticmethod
+    """@staticmethod
     @abstractmethod
     def from_io():
-        pass
+        pass"""
 
 
 class UnpreparedResource:
