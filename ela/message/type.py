@@ -11,6 +11,9 @@ class MessageType(BaseModel):
     messageChain: Optional[MessageChain]
     sender: Union[Friend, Member]
 
+    def __eq__(self, other):
+        return str(self.messageChain) == other
+
     @property
     def source(self) -> Source:
         return self.messageChain[0]

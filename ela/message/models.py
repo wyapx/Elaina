@@ -2,7 +2,7 @@ import os
 from typing import Optional, Union, Literal
 
 from .base import MessageModel, RemoteResource, MessageModelTypes, UnpreparedResource
-from ..component.group import Group
+from ..component.group import Member
 from ..types import PokeType
 
 
@@ -40,7 +40,7 @@ class At(MessageModel):
     target: int
     display: Optional[str]
 
-    def __init__(self, target: Union[int, Group], **_):
+    def __init__(self, target: Union[int, Member], **_):
         super(At, self).__init__(target=target)
 
     def __str__(self):
