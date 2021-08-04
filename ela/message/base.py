@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from enum import Enum
 from pathlib import Path
-from typing import Optional, Type
+from typing import Optional, Type, BinaryIO
 
 import aiohttp
 from pydantic import BaseModel, HttpUrl
@@ -48,10 +48,10 @@ class RemoteResource(BaseModel):
     def from_path(path: str):
         pass
 
-    """@staticmethod
+    @staticmethod
     @abstractmethod
-    def from_io():
-        pass"""
+    def from_io(obj: BinaryIO):
+        pass
 
 
 class UnpreparedResource:
@@ -63,23 +63,23 @@ class UnpreparedResource:
         self._kwargs = kwargs
 
     @staticmethod
-    async def upload(network, target: str, utype: str, file_path: str, file_type: str, **extra_field) -> dict:
+    async def upload(network, target: str, utype: str, io: BinaryIO, file_type: str, **extra_field) -> dict:
         form = aiohttp.FormData()
         form.add_field("sessionKey", network.session_key)
         form.add_field("type", utype)
-        form.add_field(file_type, open(file_path, "rb"))
+        form.add_field(file_type, io)
         for k, v in extra_field.items():
             form.add_field(k, v)
         return await network.post(target, data=form)
 
-    async def uploadImage(self, network, path: str, utype: str):
-        return await self.upload(network, "/uploadImage", utype, path, "img")
+    async def uploadImage(self, network, io: BinaryIO, utype: str):
+        return await self.upload(network, "/uploadImage", utype, io, "img")
 
-    async def uploadVoice(self, network, path: str, utype: str):
-        return await self.upload(network, "/uploadVoice", utype, path, "voice")
+    async def uploadVoice(self, network, io: BinaryIO, utype: str):
+        return await self.upload(network, "/uploadVoice", utype, io, "voice")
 
-    async def uploadFile(self, network, file_path: str, utype: str, path=""):
-        return await self.upload(network, "/file/upload", utype, file_path, "file", path=path)
+    async def uploadFile(self, network, io: BinaryIO, utype: str, path=""):
+        return await self.upload(network, "/file/upload", utype, io, "file", path=path)
 
     async def prepare(self, network, utype):
         """

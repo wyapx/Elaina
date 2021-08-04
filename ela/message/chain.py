@@ -6,6 +6,9 @@ from typing import List, Union, Type, Optional, Any, Tuple, Generator
 from pydantic import BaseModel, validator
 
 
+MODEL_ARGS = Type[Union[RemoteResource, MessageModel]]
+
+
 class MessageChain(BaseModel):
     __root__: List[Any] = []
 
@@ -21,13 +24,13 @@ class MessageChain(BaseModel):
                 raise ValueError(item)
         return res
 
-    def get_first_model(self, model_type: Tuple[Type[Union[RemoteResource, MessageModel]]])\
+    def get_first_model(self, model_type: Union[Tuple[MODEL_ARGS], MODEL_ARGS])\
             -> Union[MessageModel, RemoteResource, None]:
         for item in self.__root__:
             if isinstance(item, model_type):
                 return item
 
-    def get_all_model(self, model_type: Tuple[Type[Union[RemoteResource, MessageModel]]])\
+    def get_all_model(self, model_type: Union[Tuple[MODEL_ARGS], MODEL_ARGS])\
             -> Generator[Union[RemoteResource, MessageModel], None, None]:
         for item in self.__root__:
             if isinstance(item, model_type):
@@ -74,6 +77,9 @@ class NodeInfo(BaseModel):
     senderName: Optional[str]
     messageChain: Optional[MessageChain]
     messageId: Optional[int]
+
+    def __repr__(self):
+        return f'[Node::sender="{self.senderName}({self.senderId})",time="{self.time}"]'
 
 
 class ForwardMessage(MessageModel):

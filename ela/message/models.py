@@ -1,5 +1,5 @@
 import os
-from typing import Optional, Union, Literal
+from typing import Optional, Union, Literal, BinaryIO
 
 from .base import MessageModel, RemoteResource, MessageModelTypes, UnpreparedResource
 from ..component.group import Member
@@ -91,7 +91,11 @@ class Image(MessageModel, RemoteResource):
     def from_path(path: str):
         if not os.path.isfile(path):
             raise FileNotFoundError(path)
-        return UnpreparedResource(Image, "uploadImage", path=path)
+        return UnpreparedResource(Image, "uploadImage", io=open(path, "rb"))
+
+    @staticmethod
+    def from_io(obj: BinaryIO):
+        return UnpreparedResource(Image, "uploadImage", io=obj)
 
     def __str__(self):
         return f"[Image::id='{self.imageId}']"
@@ -104,7 +108,11 @@ class FlashImage(Image):
     def from_path(path: str):
         if not os.path.isfile(path):
             raise FileNotFoundError(path)
-        return UnpreparedResource(FlashImage, "uploadImage", path=path)
+        return UnpreparedResource(FlashImage, "uploadImage", io=open(path, "rb"))
+
+    @staticmethod
+    def from_io(obj: BinaryIO):
+        return UnpreparedResource(FlashImage, "uploadImage", io=obj)
 
     def __str__(self):
         return f"[FlashImage::id='{self.imageId}']"
@@ -132,7 +140,11 @@ class Voice(MessageModel, RemoteResource):
     def from_path(path: str):
         if not os.path.isfile(path):
             raise FileNotFoundError(path)
-        return UnpreparedResource(Voice, "uploadVoice", path=path)
+        return UnpreparedResource(Voice, "uploadVoice", io=open(path, "rb"))
+
+    @staticmethod
+    def from_io(obj: BinaryIO):
+        return UnpreparedResource(Voice, "uploadVoice", io=obj)
 
     def __str__(self):
         return f"[Voice::id='{self.voiceId}']"
@@ -245,7 +257,11 @@ class File(MessageModel):
     def from_path(path: str):
         if not os.path.isfile(path):
             raise FileNotFoundError(path)
-        return UnpreparedResource(Image, "uploadFile", file_path=path)
+        return UnpreparedResource(File, "uploadFile", io=open(path, "rb"), path=path)
+
+    @staticmethod
+    def from_io(obj: BinaryIO):
+        return UnpreparedResource(File, "uploadFile", io=obj)
 
 
 message_model = {
