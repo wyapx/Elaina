@@ -3,6 +3,7 @@ import asyncio
 from typing import List, Union
 
 from .message.base import MessageModel, RemoteResource, UnpreparedResource
+from .types import T
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +30,7 @@ def assert_success(data: dict, return_obj=None):
 async def prepare_chain(
         network,
         utype: str,
-        chain: List[Union[MessageModel, RemoteResource, UnpreparedResource]]
+        chain: T.Chain
 ) -> List[Union[MessageModel, RemoteResource]]:
     if isinstance(chain, list):
         new_chain: List[Union[MessageModel, RemoteResource]] = []

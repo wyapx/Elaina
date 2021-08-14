@@ -2,7 +2,7 @@ import hashlib
 import os
 from enum import Enum
 from os import PathLike
-from typing import List, Optional
+from typing import List, Optional, Iterable
 
 import aiohttp
 from pydantic import BaseModel, HttpUrl
@@ -140,6 +140,10 @@ class GroupFile(BaseModel):
 
 class GroupFileList(BaseModel):
     __root__: List[GroupFile]
+
+    def __iter__(self) -> Iterable[GroupFile]:
+        for i in self.__root__:
+            yield i
 
 
 class GroupList(BaseModel):

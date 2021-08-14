@@ -6,6 +6,7 @@ from typing import Type, Union, List, Dict
 import aiohttp
 
 from . import method
+from .types import T
 from .component.friend import Friend, FriendList, Profile
 from .component.group import Group, GroupList, GroupMemberList, GroupFileList
 from .message.base import MessageModel, RemoteResource, UnpreparedResource
@@ -57,8 +58,8 @@ class API:
     async def getMessageFromId(
             self,
             message_id: int,
-            msgtype: Type[Union[GroupMessage, FriendMessage, TempMessage]]
-    ) -> Union[GroupMessage, FriendMessage, TempMessage]:
+            msgtype: Type[T.MessageType]
+    ) -> T.MessageType:
         return msgtype(
             **(await self._send_req("messageFromId", method.GetInfoFromTarget(
                 target=message_id,
@@ -68,9 +69,9 @@ class API:
 
     async def sendGroupMessage(
             self,
-            group: Union[int, Group],
-            chain: Union[MessageChain, List[Union[MessageModel, RemoteResource, UnpreparedResource]]],
-            *, quote_msg: Union[int, Source] = None
+            group: T.Group,
+            chain: T.Chain,
+            *, quote_msg: T.Source = None
     ) -> int:
         if isinstance(chain, list):
             chain = MessageChain.parse_obj(await prepare_chain(self._network, "group", chain))
@@ -86,9 +87,9 @@ class API:
 
     async def sendFriendMessage(
             self,
-            friend: Union[int, Friend],
-            chain: Union[MessageChain, List[Union[MessageModel, RemoteResource, UnpreparedResource]]],
-            *, quote_msg: Union[int, Source] = None
+            friend: T.Friend,
+            chain: T.MessageType,
+            *, quote_msg: T.MessageType = None
     ) -> int:
         if isinstance(chain, list):
             chain = MessageChain.parse_obj(await prepare_chain(self._network, "friend", chain))
@@ -104,10 +105,10 @@ class API:
 
     async def sendTempMessage(
             self,
-            group: Union[int, Group],
+            group: T.Group,
             qq: int,
-            chain: Union[MessageChain, List[Union[MessageModel, RemoteResource, UnpreparedResource]]],
-            *, quote_msg: Union[int, Source] = None
+            chain: T.Chain,
+            *, quote_msg: T.MessageType = None
     ) -> int:
         if isinstance(chain, list):
             chain = MessageChain.parse_obj(await prepare_chain(self._network, "temp", chain))
@@ -167,7 +168,7 @@ class API:
             )))
         )
 
-    async def memberProfile(self, group: Union[int, Group], member: int) -> Profile:
+    async def memberProfile(self, group: T.Group, member: T.Member) -> Profile:
         return Profile(
             **(await self._send_req("memberProfile", method.GetMemberProfile(
                 sessionKey=self._network.session_key,
@@ -176,7 +177,7 @@ class API:
             )))
         )
 
-    async def groupFileList(self, group: Union[int, Group]) -> GroupFileList:
+    async def groupFileList(self, group: T.Group) -> GroupFileList:
         return GroupFileList(
             __root__=await self._send_req("file_list", method.GetFileList(
                         sessionKey=self._network.session_key,
@@ -184,3 +185,18 @@ class API:
                         group=group
                     ), return_obj="data")
         )
+
+    async def muteMember(self, group: T.Group, member: T.Member, mute_sec=60):
+        return await self._send_req("mute", method.MuteMember(
+            sessionKey=self._network.session_key,
+            target=group,
+            memberId=member,
+            time=mute_sec
+        ))
+
+    async def unmuteMember(self, group: T.Group, member: T.Member):
+        return await self._send_req("unmute", method.GetMemberProfile(
+            sessionKey=self._network.session_key,
+            target=group,
+            memberId=member
+        ))

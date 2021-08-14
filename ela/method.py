@@ -42,3 +42,7 @@ class GetFileList(GetInfoFromTarget):
     group: Optional[int]
     qq: Optional[int]
     withDownloadInfo: bool = True
+
+
+class MuteMember(GetMemberProfile):
+    time: int
