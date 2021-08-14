@@ -246,7 +246,6 @@ class File(MessageModel):
     请勿使用
     """
     type = MessageModelTypes.File
-    id: int
     name: str
     size: Optional[int]
 

@@ -7,7 +7,7 @@ import aiohttp
 
 from . import method
 from .component.friend import Friend, FriendList, Profile
-from .component.group import Group, GroupList, GroupMemberList
+from .component.group import Group, GroupList, GroupMemberList, GroupFileList
 from .message.base import MessageModel, RemoteResource, UnpreparedResource
 from .message.chain import MessageChain
 from .message.models import Source
@@ -174,4 +174,13 @@ class API:
                 target=group,
                 memberId=member
             )))
+        )
+
+    async def groupFileList(self, group: Union[int, Group]) -> GroupFileList:
+        return GroupFileList(
+            __root__=await self._send_req("file_list", method.GetFileList(
+                        sessionKey=self._network.session_key,
+                        target=group,
+                        group=group
+                    ), return_obj="data")
         )

@@ -1,9 +1,9 @@
 import logging
 import functools
 
-from ela.utils import run_function, logger
+from .utils import run_function
 
-logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def print_result(func):

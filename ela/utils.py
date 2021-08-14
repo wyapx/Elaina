@@ -1,8 +1,8 @@
-import asyncio
 import logging
+import asyncio
 from typing import List, Union
 
-from ela.message.base import MessageModel, RemoteResource, UnpreparedResource
+from .message.base import MessageModel, RemoteResource, UnpreparedResource
 
 logger = logging.getLogger(__name__)
 

@@ -35,3 +35,10 @@ class GetInfoFromTarget(BaseSession):
 
 class GetMemberProfile(GetInfoFromTarget):
     memberId: int
+
+
+class GetFileList(GetInfoFromTarget):
+    id: str = ""
+    group: Optional[int]
+    qq: Optional[int]
+    withDownloadInfo: bool = True

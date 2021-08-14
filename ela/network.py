@@ -1,11 +1,11 @@
-import asyncio
 import json
 import logging
+import asyncio
 from typing import Callable, Any, Optional
 
 import aiohttp
 from urllib import parse
-from ela.utils import assert_success
+from .utils import assert_success
 
 logger = logging.getLogger(__name__)
 
