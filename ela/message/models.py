@@ -1,9 +1,10 @@
 import os
+import random
+from enum import Enum
 from typing import Optional, Union, Literal, BinaryIO
 
 from .base import MessageModel, RemoteResource, MessageModelTypes, UnpreparedResource
 from ..component.group import Member
-from ..types import PokeType
 
 
 class Source(MessageModel):
@@ -201,7 +202,19 @@ class Poke(MessageModel):
     type = MessageModelTypes.Poke
     name: str
 
-    def __init__(self, name: PokeType, **_):
+    class Type(str, Enum):
+        SixSixSix = "SixSixSix"
+        ShowLove = "ShowLove"
+        Like = "Like"
+        Heartbroken = "Heartbroken"
+        FangDaZhao = "FangDaZhao"
+        Poke = "Poke"
+
+        def random_choice(self):
+            return random.choice(
+                [self.SixSixSix, self.ShowLove, self.Poke, self.Like, self.FangDaZhao, self.Heartbroken])
+
+    def __init__(self, name: Type, **_):
         super(Poke, self).__init__(name=name)
 
     def __str__(self):
