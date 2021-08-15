@@ -44,5 +44,14 @@ class GetFileList(GetInfoFromTarget):
     withDownloadInfo: bool = True
 
 
+class SendNudge(GetInfoFromTarget):
+    subject: int
+    kind: str
+
+
 class MuteMember(GetMemberProfile):
     time: int
+
+
+class KickMember(GetMemberProfile):
+    msg: Optional[str]

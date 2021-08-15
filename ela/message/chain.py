@@ -2,7 +2,7 @@ import time
 
 from .models import message_model
 from .base import MessageModel, RemoteResource, MessageModelTypes
-from typing import List, Union, Type, Optional, Any, Tuple, Generator
+from typing import List, Union, Type, Optional, Any, Tuple, Generator, Iterable
 from pydantic import BaseModel, validator
 
 
@@ -114,6 +114,9 @@ class ForwardMessage(MessageModel):
 
     def add_node(self, node: NodeInfo):
         self.nodeList.append(node)
+
+    def __iter__(self) -> Iterable[NodeInfo]:
+        yield from self.__root__
 
 
 message_model["Forward"] = ForwardMessage

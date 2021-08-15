@@ -29,6 +29,10 @@ class API:
         self.__ws: List[aiohttp.ClientWebSocketResponse] = []
 
     @property
+    def session_key(self) -> str:
+        return self._network.session_key
+
+    @property
     def ws(self) -> aiohttp.ClientWebSocketResponse:
         if not self.__ws:
             raise RuntimeError("Application not running")
@@ -63,7 +67,7 @@ class API:
         return msgtype(
             **(await self._send_req("messageFromId", method.GetInfoFromTarget(
                 target=message_id,
-                sessionKey=self._network.session_key
+                sessionKey=self.session_key
             )))
         )
 
@@ -79,7 +83,7 @@ class API:
             target=group,
             quote=quote_msg,
             messageChain=chain,
-            sessionKey=self._network.session_key
+            sessionKey=self.session_key
         ), return_obj="messageId")
         if msg_id == -1:
             logger.warning("Message may not be sent")
@@ -97,7 +101,7 @@ class API:
             target=friend,
             quote=quote_msg,
             messageChain=chain,
-            sessionKey=self._network.session_key
+            sessionKey=self.session_key
         ), return_obj="messageId")
         if msg_id == -1:
             logger.warning("Message may not be sent")
@@ -117,7 +121,7 @@ class API:
             group=group,
             quote=quote_msg,
             messageChain=chain,
-            sessionKey=self._network.session_key
+            sessionKey=self.session_key
         ), return_obj="messageId")
         if msg_id == -1:
             logger.warning("Message may not be sent")
@@ -126,7 +130,7 @@ class API:
     async def recallMessage(self, target: int):
         return assert_success(
             await self._send_req("recall", method.GetInfoFromTarget(
-                sessionKey=self._network.session_key,
+                sessionKey=self.session_key,
                 target=target
             ))
         )
@@ -134,21 +138,21 @@ class API:
     async def friendList(self) -> FriendList:
         return FriendList(
             __root__=await self._send_req("friendList", method.BaseSession(
-                sessionKey=self._network.session_key
+                sessionKey=self.session_key
             ), return_obj="data")
         )
 
     async def groupList(self) -> GroupList:
         return GroupList(
             __root__=await self._send_req("groupList", method.BaseSession(
-                sessionKey=self._network.session_key
+                sessionKey=self.session_key
             ), return_obj="data")
         )
 
     async def memberList(self, target: Union[int, Group]) -> GroupMemberList:
         return GroupMemberList(
             __root__=await self._send_req("memberList", method.GetInfoFromTarget(
-                sessionKey=self._network.session_key,
+                sessionKey=self.session_key,
                 target=target
             ), return_obj="data")
         )
@@ -156,14 +160,14 @@ class API:
     async def botProfile(self) -> Profile:
         return Profile(
             **(await self._send_req("botProfile", method.BaseSession(
-                sessionKey=self._network.session_key
+                sessionKey=self.session_key
             )))
         )
 
     async def friendProfile(self, target: int) -> Profile:
         return Profile(
             **(await self._send_req("friendProfile", method.GetInfoFromTarget(
-                sessionKey=self._network.session_key,
+                sessionKey=self.session_key,
                 target=target
             )))
         )
@@ -171,7 +175,7 @@ class API:
     async def memberProfile(self, group: T.Group, member: T.Member) -> Profile:
         return Profile(
             **(await self._send_req("memberProfile", method.GetMemberProfile(
-                sessionKey=self._network.session_key,
+                sessionKey=self.session_key,
                 target=group,
                 memberId=member
             )))
@@ -180,15 +184,34 @@ class API:
     async def groupFileList(self, group: T.Group) -> GroupFileList:
         return GroupFileList(
             __root__=await self._send_req("file_list", method.GetFileList(
-                        sessionKey=self._network.session_key,
+                        sessionKey=self.session_key,
                         target=group,
                         group=group
                     ), return_obj="data")
         )
 
+    async def deleteFriend(self, target: T.Friend):
+        return await self._send_req("deleteFriend", method.GetInfoFromTarget(
+            sessionKey=self.session_key,
+            target=target
+        ))
+
+    async def sendNudge(self, target: Union[T.Member, T.Friend], subject: T.Member = None):
+        if not subject:
+            subject = target
+            kind = "Friend"
+        else:
+            kind = "Group"
+        return await self._send_req("sendNudge", method.SendNudge(
+            sessionKey=self.session_key,
+            target=target,
+            subject=subject,
+            kind=kind
+        ))
+
     async def muteMember(self, group: T.Group, member: T.Member, mute_sec=60):
         return await self._send_req("mute", method.MuteMember(
-            sessionKey=self._network.session_key,
+            sessionKey=self.session_key,
             target=group,
             memberId=member,
             time=mute_sec
@@ -196,7 +219,39 @@ class API:
 
     async def unmuteMember(self, group: T.Group, member: T.Member):
         return await self._send_req("unmute", method.GetMemberProfile(
-            sessionKey=self._network.session_key,
+            sessionKey=self.session_key,
             target=group,
             memberId=member
+        ))
+
+    async def kick(self, target: T.Group, member: T.Member, msg=None):
+        return await self._send_req("kick", method.KickMember(
+            sessionKey=self.session_key,
+            target=target,
+            memberId=member,
+            msg=msg
+        ))
+
+    async def quit(self, target: T.Group):
+        return await self._send_req("quit", method.GetInfoFromTarget(
+            sessionKey=self.session_key,
+            target=target
+        ))
+
+    async def muteAll(self, target: T.Group):
+        return await self._send_req("muteAll", method.GetInfoFromTarget(
+            sessionKey=self.session_key,
+            target=target
+        ))
+
+    async def unmuteAll(self, target: T.Group):
+        return await self._send_req("unmuteAll", method.GetInfoFromTarget(
+            sessionKey=self.session_key,
+            target=target
+        ))
+
+    async def setEssence(self, msg: T.Source):
+        return await self._send_req("setEssence", method.GetInfoFromTarget(
+            sessionKey=self.session_key,
+            target=msg
         ))

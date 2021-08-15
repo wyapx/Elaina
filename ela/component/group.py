@@ -1,7 +1,6 @@
 import hashlib
 import os
 from enum import Enum
-from os import PathLike
 from typing import List, Optional, Iterable
 
 import aiohttp
@@ -110,7 +109,8 @@ class GroupFile(BaseModel):
     isDirectory: bool
     downloadInfo: Optional[DownloadInfo]
 
-    def __remove_file(self, fd, path: str):
+    @staticmethod
+    def __remove_file(fd, path: str):
         fd.close()
         os.remove(path)
 
@@ -142,13 +142,18 @@ class GroupFileList(BaseModel):
     __root__: List[GroupFile]
 
     def __iter__(self) -> Iterable[GroupFile]:
-        for i in self.__root__:
-            yield i
+        yield from self.__root__
 
 
 class GroupList(BaseModel):
     __root__: List[Group]
 
+    def __iter__(self) -> Iterable[Group]:
+        yield from self.__root__
+
 
 class GroupMemberList(BaseModel):
     __root__: List[Member]
+
+    def __iter__(self) -> Iterable[Member]:
+        yield from self.__root__
