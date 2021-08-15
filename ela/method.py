@@ -16,6 +16,15 @@ class Request(BaseModel):
     content: BaseSession
 
 
+class NewResponse(BaseSession):
+    eventId: int
+    fromId: int
+    groupId: int
+    message: Optional[str] = ""
+    sessionKey: str
+    operate: int
+
+
 class SendMessage(BaseSession):
     target: int
     quote: Optional[int]

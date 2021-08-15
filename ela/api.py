@@ -1,11 +1,12 @@
 import asyncio
 import logging
 from random import randint
-from typing import Type, Union, List, Dict
+from typing import Type, Union, List, Dict, Callable
 
 import aiohttp
 
 from . import method
+from .method import NewResponse
 from .types import T
 from .component.friend import Friend, FriendList, Profile
 from .component.group import Group, GroupList, GroupMemberList, GroupFileList
@@ -52,8 +53,9 @@ class API:
         ).json()
         future = self._loop.create_future()
         self._msg_future[str(req_id)] = future
+        logger.debug(data)
         await self.ws.send_str(data)
-        logger.debug(f"command {command} was called")
+        logger.warning(f"command {command} was called")
         return assert_success(
             await future,
             return_obj
@@ -255,3 +257,12 @@ class API:
             sessionKey=self.session_key,
             target=msg
         ))
+
+    async def resp_newFriendRequestEvent(self, resp: Callable[[str], NewResponse]):
+        return await self._send_req("resp_newFriendRequestEvent", resp(self.session_key))
+
+    async def resp_memberJoinRequestEvent(self, resp: Callable[[str], NewResponse]):
+        return await self._send_req("resp_memberJoinRequestEvent", resp(self.session_key))
+
+    async def resp_botInvitedJoinGroupRequestEvent(self, resp: Callable[[str], NewResponse]):
+        return await self._send_req("resp_botInvitedJoinGroupRequestEvent", resp(self.session_key))

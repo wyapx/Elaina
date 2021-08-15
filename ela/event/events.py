@@ -1,8 +1,9 @@
-from typing import Optional, Dict, List, Any
+from typing import Optional, Dict, List, Any, Callable
 
 from pydantic import Field, BaseModel
 from ela.component.friend import Friend
 from ela.component.group import Permission, Group, Member, GroupHonorAction
+from ela.method import NewResponse
 
 
 class BotEvent(BaseModel):
@@ -204,35 +205,6 @@ class MemberHonorChangeEvent(GroupEvent):
     honor: str
 
 
-class NewFriendRequestEvent(FriendEvent):
-    type = "NewFriendRequestEvent"
-    eventId: int
-    fromId: int
-    groupId: int
-    nick: str
-    message: str
-
-
-class MemberJoinRequestEvent(GroupEvent):
-    type = "MemberJoinRequestEvent"
-    eventId: int
-    fromId: int
-    groupId: int
-    groupName: str
-    nick: str
-    message: str
-
-
-class BotInvitedJoinGroupRequestEvent(BotEvent):
-    type = "BotInvitedJoinGroupRequestEvent"
-    eventId: int
-    fromId: int
-    groupId: int
-    groupName: str
-    nick: str
-    message: str
-
-
 class CommandExecutedEvent(BaseModel):
     type: str = "CommandExecutedEvent"
     name: str
@@ -253,3 +225,49 @@ class NudgeEvent(BaseModel):
     action: str
     suffix: str
     target: int
+
+
+class NewRequestEvent(BaseModel):
+    type: str
+    nick: str
+    eventId: int
+    fromId: int
+    groupId: int
+    message: Optional[str] = ""
+
+    def response(self, operate: int) -> Callable[[str], NewResponse]:
+        assert operate in (0, 1, 2)
+
+        def _wrapper(session_key: str):
+            return NewResponse(
+                sessionKey=session_key,
+                operate=operate,
+                eventId=self.eventId,
+                groupId=self.groupId,
+                fromId=self.fromId
+            )
+
+        return _wrapper
+
+    def accept(self) -> Callable[[str], NewResponse]:
+        return self.response(0)
+
+    def deny(self) -> Callable[[str], NewResponse]:
+        return self.response(1)
+
+    def block(self) -> Callable[[str], NewResponse]:
+        return self.response(2)
+
+
+class NewFriendRequestEvent(NewRequestEvent):
+    type = "NewFriendRequestEvent"
+
+
+class MemberJoinRequestEvent(NewRequestEvent):
+    type = "MemberJoinRequestEvent"
+    groupName: str
+
+
+class BotInvitedJoinGroupRequestEvent(NewRequestEvent):
+    type = "BotInvitedJoinGroupRequestEvent"
+    groupName: str
