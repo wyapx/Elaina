@@ -100,7 +100,7 @@ class Contact(BaseModel):
     permission: Permission
 
 
-class GroupFile(BaseModel):
+class File(BaseModel):
     name: str
     path: str
     id: str
@@ -138,10 +138,10 @@ class GroupFile(BaseModel):
             fd.close()
 
 
-class GroupFileList(BaseModel):
-    __root__: List[GroupFile]
+class FileList(BaseModel):
+    __root__: List[File]
 
-    def __iter__(self) -> Iterable[GroupFile]:
+    def __iter__(self) -> Iterable[File]:
         yield from self.__root__
 
 

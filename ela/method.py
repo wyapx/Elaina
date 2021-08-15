@@ -46,11 +46,22 @@ class GetMemberProfile(GetInfoFromTarget):
     memberId: int
 
 
-class GetFileList(GetInfoFromTarget):
-    id: str = ""
+class FileOperation(GetInfoFromTarget):
+    id: str
     group: Optional[int]
     qq: Optional[int]
+
+
+class GetFile(FileOperation):
     withDownloadInfo: bool = True
+
+
+class MakeDir(FileOperation):
+    directoryName: str
+
+
+class MoveFile(FileOperation):
+    moveTo: str
 
 
 class SendNudge(GetInfoFromTarget):

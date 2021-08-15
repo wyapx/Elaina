@@ -6,15 +6,12 @@ from typing import Type, Union, List, Dict, Callable
 import aiohttp
 
 from . import method
-from .method import NewResponse
-from .types import T
-from .component.friend import Friend, FriendList, Profile
-from .component.group import Group, GroupList, GroupMemberList, GroupFileList
-from .message.base import MessageModel, RemoteResource, UnpreparedResource
+from .component.friend import FriendList, Profile
+from .component.group import Group, GroupList, GroupMemberList, FileList, File
 from .message.chain import MessageChain
-from .message.models import Source
-from .message.type import GroupMessage, FriendMessage, TempMessage
+from .method import NewResponse
 from .network import Network
+from .types import T
 from .utils import prepare_chain, assert_success
 
 logger = logging.getLogger(__name__)
@@ -130,12 +127,10 @@ class API:
         return msg_id
 
     async def recallMessage(self, target: int):
-        return assert_success(
-            await self._send_req("recall", method.GetInfoFromTarget(
-                sessionKey=self.session_key,
-                target=target
-            ))
-        )
+        return await self._send_req("recall", method.GetInfoFromTarget(
+            sessionKey=self.session_key,
+            target=target
+        ))
 
     async def friendList(self) -> FriendList:
         return FriendList(
@@ -183,14 +178,39 @@ class API:
             )))
         )
 
-    async def groupFileList(self, group: T.Group) -> GroupFileList:
-        return GroupFileList(
-            __root__=await self._send_req("file_list", method.GetFileList(
-                        sessionKey=self.session_key,
-                        target=group,
-                        group=group
-                    ), return_obj="data")
+    async def fileList(self, target: [T.Group, T.Friend], parent_id="") -> FileList:
+        return FileList(
+            __root__=await self._send_req("file_list", method.GetFile(
+                sessionKey=self.session_key,
+                target=target,
+                id=parent_id
+            ), return_obj="data")
         )
+
+    async def fileInfo(self, target: [T.Group, T.Member], file_id: str) -> File:
+        return File(
+            **(await self._send_req("file_info", method.GetFile(
+                sessionKey=self.session_key,
+                target=target,
+                id=file_id
+            )))
+        )
+
+    async def group_mkdir(self, target: T.Group, name: str, parent_id=""):
+        return await self._send_req("file_mkdir", method.MakeDir(
+            sessionKey=self.session_key,
+            target=target,
+            id=parent_id,
+            directoryName=name
+        ))
+
+    async def group_move_file(self, target: T.Group, target_id: str, dst_id: str):
+        return await self._send_req("file_move", method.MoveFile(
+            sessionKey=self.session_key,
+            target=target,
+            id=target_id,
+            moveTo=dst_id
+        ))
 
     async def deleteFriend(self, target: T.Friend):
         return await self._send_req("deleteFriend", method.GetInfoFromTarget(
