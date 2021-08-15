@@ -239,3 +239,17 @@ class CommandExecutedEvent(BaseModel):
     friend: Optional[Friend]
     member: Optional[Member]
     args: List[Dict[str, Any]]
+
+
+class _NudgeSubject(BaseModel):
+    id: int
+    kind: str
+
+
+class NudgeEvent(BaseModel):
+    type: str = "NudgeEvent"
+    fromId: int
+    subject: _NudgeSubject
+    action: str
+    suffix: str
+    target: int
