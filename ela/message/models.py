@@ -254,10 +254,6 @@ class MusicShare(MessageModel):
 
 
 class File(MessageModel):
-    """
-    未完成
-    请勿使用
-    """
     type = MessageModelTypes.File
     name: str
     size: Optional[int]
@@ -266,14 +262,14 @@ class File(MessageModel):
         return f"[File::name='{self.name}']"
 
     @staticmethod
-    def from_path(path: str):
-        if not os.path.isfile(path):
-            raise FileNotFoundError(path)
-        return UnpreparedResource(File, "uploadFile", io=open(path, "rb"), path=path)
+    def from_path(local_path: str, remote_path: str, target: Union["Group", int]):
+        if not os.path.isfile(local_path):
+            raise FileNotFoundError(local_path)
+        return UnpreparedResource(File, "uploadFile", io=open(local_path, "rb"), path=remote_path, target=str(int(target)))
 
     @staticmethod
-    def from_io(obj: BinaryIO):
-        return UnpreparedResource(File, "uploadFile", io=obj)
+    def from_io(obj: BinaryIO, remote_path: str, target: Union["Group", int]):
+        return UnpreparedResource(File, "uploadFile", io=obj, path=remote_path, target=str(int(target)))
 
 
 message_model = {

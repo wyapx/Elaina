@@ -63,14 +63,14 @@ class UnpreparedResource:
         self._kwargs = kwargs
 
     @staticmethod
-    async def upload(network, target: str, utype: str, io: BinaryIO, file_type: str, **extra_field) -> dict:
+    async def upload(network, action: str, utype: str, io: BinaryIO, file_type: str, **extra_field) -> dict:
         form = aiohttp.FormData()
         form.add_field("sessionKey", network.session_key)
         form.add_field("type", utype)
-        form.add_field(file_type, io)
         for k, v in extra_field.items():
             form.add_field(k, v)
-        return await network.post(target, data=form)
+        form.add_field(file_type, io)
+        return await network.post(action, data=form)
 
     async def uploadImage(self, network, io: BinaryIO, utype: str):
         return await self.upload(network, "/uploadImage", utype, io, "img")
@@ -78,8 +78,8 @@ class UnpreparedResource:
     async def uploadVoice(self, network, io: BinaryIO, utype: str):
         return await self.upload(network, "/uploadVoice", utype, io, "voice")
 
-    async def uploadFile(self, network, io: BinaryIO, utype: str, path=""):
-        return await self.upload(network, "/file/upload", utype, io, "file", path=path)
+    async def uploadFile(self, network, io: BinaryIO, utype: str, target: str, path: str):
+        return await self.upload(network, "/file/upload", utype, io, "file", target=target, path=path)
 
     async def prepare(self, network, utype):
         """
