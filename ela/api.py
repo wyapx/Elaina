@@ -196,7 +196,7 @@ class API:
             target=target
         ))
 
-    async def sendNudge(self, target: Union[T.Member, T.Friend], subject: T.Member = None):
+    async def sendNudge(self, target: Union[T.Member, T.Friend], subject: T.Group = None):
         if not subject:
             subject = target
             kind = "Friend"
