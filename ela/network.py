@@ -164,5 +164,4 @@ class _HTTP:
             return_obj="session"
         )
         assert_success(await self._http_req("POST", self.__join_url("/bind"), json={"sessionKey": session_key, "qq": self.qq}))
-        print(session_key)
         self.__session_key = session_key

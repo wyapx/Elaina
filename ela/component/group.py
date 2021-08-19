@@ -109,11 +109,6 @@ class File(BaseModel):
     isDirectory: bool
     downloadInfo: Optional[DownloadInfo]
 
-    @staticmethod
-    def __remove_file(fd, path: str):
-        fd.close()
-        os.remove(path)
-
     async def download_file(self, save_path: str, verify_file=False):
         if not self.downloadInfo:
             raise AttributeError("downloadInfo not found")
@@ -121,21 +116,20 @@ class File(BaseModel):
             vf = hashlib.sha1()
         else:
             vf = None
-        fd = open(save_path, "wb")
         try:
-            async with aiohttp.request("GET", self.downloadInfo.url) as resp:
-                async for bl in resp.content:
-                    if vf:
-                        vf.update(bl)
-                    fd.write(bl)
+            with open(save_path, "wb") as fd:
+                async with aiohttp.request("GET", self.downloadInfo.url) as resp:
+                    async for bl in resp.content:
+                        if vf:
+                            vf.update(bl)
+                        fd.write(bl)
         except:
-            self.__remove_file(fd, save_path)
+            os.remove(save_path)
             raise
         if verify_file:
             if vf.hexdigest() != self.downloadInfo.sha1.lower():
-                self.__remove_file(fd, save_path)
+                os.remove(save_path)
                 raise NotImplementedError(vf.hexdigest(), self.downloadInfo.sha1.lower(), "not match")
-            fd.close()
 
 
 class FileList(BaseModel):

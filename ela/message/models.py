@@ -22,7 +22,7 @@ class Source(MessageModel):
         return self.id
 
     def __str__(self):
-        return f"[Source::id={self.id}]"
+        return f"[source:{self.id}]"
 
 
 class Plain(MessageModel):
@@ -45,14 +45,14 @@ class At(MessageModel):
         super(At, self).__init__(target=target)
 
     def __str__(self):
-        return self.display if self.display else f"@{self.target}"
+        return f"[mirai:at:{self.target}]"
 
 
 class AtAll(MessageModel):
     type = MessageModelTypes.AtAll
 
     def __str__(self):
-        return "[AtAll]"
+        return "[mirai:atall]"
 
 
 class Face(MessageModel):
@@ -67,7 +67,7 @@ class Face(MessageModel):
         )
 
     def __str__(self):
-        return f"[Face::id={self.faceId},name='{self.name}']"
+        return f"[mirai:face:{self.faceId}']"
 
 
 class Image(MessageModel, RemoteResource):
@@ -99,7 +99,7 @@ class Image(MessageModel, RemoteResource):
         return UnpreparedResource(Image, "uploadImage", io=obj)
 
     def __str__(self):
-        return f"[Image::id='{self.imageId}']"
+        return f"[mirai:image:{self.imageId}]"
 
 
 class FlashImage(Image):
@@ -116,7 +116,7 @@ class FlashImage(Image):
         return UnpreparedResource(FlashImage, "uploadImage", io=obj)
 
     def __str__(self):
-        return f"[FlashImage::id='{self.imageId}']"
+        return f"[mirai:flash:{self.imageId}]"
 
 
 class Voice(MessageModel, RemoteResource):
@@ -148,7 +148,7 @@ class Voice(MessageModel, RemoteResource):
         return UnpreparedResource(Voice, "uploadVoice", io=obj)
 
     def __str__(self):
-        return f"[Voice::id='{self.voiceId}']"
+        return f"[mirai:voice:{self.imageId}]"
 
 
 class Xml(MessageModel):
@@ -159,7 +159,7 @@ class Xml(MessageModel):
         super(Xml, self).__init__(xml=xml)
 
     def __str__(self):
-        return f"[Xml::xml='{self.xml}']"
+        return f"[mirai:xml:{self.xml}]"
 
 
 class Json(MessageModel):
@@ -184,7 +184,7 @@ class Json(MessageModel):
         return data
 
     def __str__(self):
-        return f"[Json::json='{self.Json}']"
+        return f"[mirai:json:{self.Json}]"
 
 
 class App(MessageModel):
@@ -195,30 +195,45 @@ class App(MessageModel):
         super(App, self).__init__(content=content)
 
     def __str__(self):
-        return f"[App::content='{self.content}']"
+        return f"[mirai:app:{self.content}]"
 
 
 class Poke(MessageModel):
     type = MessageModelTypes.Poke
     name: str
 
-    class Type(str, Enum):
-        SixSixSix = "SixSixSix"
-        ShowLove = "ShowLove"
-        Like = "Like"
-        Heartbroken = "Heartbroken"
-        FangDaZhao = "FangDaZhao"
-        Poke = "Poke"
+    class Type(Enum):
+        SixSixSix = ("SixSixSix", 5, -1)
+        ShowLove = ("ShowLove", 2, -1)
+        Like = ("Like", 3, -1)
+        Heartbroken = ("Heartbroken", 4, -1)
+        FangDaZhao = ("FangDaZhao", 6, -1)
+        ChuoYiChuo = ("ChuoYiChuo", 1, -1)
 
-        def random_choice(self):
-            return random.choice(
-                [self.SixSixSix, self.ShowLove, self.Poke, self.Like, self.FangDaZhao, self.Heartbroken])
+    @classmethod
+    def random_type(cls):
+        return cls(
+            random.choice(
+                (
+                    cls.Type.SixSixSix,
+                    cls.Type.ShowLove,
+                    cls.Type.ChuoYiChuo,
+                    cls.Type.Like,
+                    cls.Type.FangDaZhao,
+                    cls.Type.Heartbroken
+                )
+            )
+        )
 
     def __init__(self, name: Type, **_):
-        super(Poke, self).__init__(name=name)
+        if isinstance(name, self.Type):
+            super(Poke, self).__init__(name=name.value[0])
+        else:
+            super(Poke, self).__init__(name=name)
 
     def __str__(self):
-        return f"[Xml::name='{self.name}']"
+        # mapper: https://github.com/mamoe/mirai/blob/dev/mirai-core-api/src/commonMain/kotlin/message/data/PokeMessage.kt#L60
+        return "[mirai:poke:{0},{1},{2}]".format(*getattr(self.Type, self.name).value)
 
 
 class Dice(MessageModel):
@@ -236,7 +251,7 @@ class Dice(MessageModel):
         return self.value
 
     def __str__(self):
-        return f"[Dice::value='{self.value}']"
+        return f"[mirai:dice:{self.value}]"
 
 
 class MusicShare(MessageModel):
@@ -265,7 +280,8 @@ class File(MessageModel):
     def from_path(local_path: str, remote_path: str, target: Union["Group", int]):
         if not os.path.isfile(local_path):
             raise FileNotFoundError(local_path)
-        return UnpreparedResource(File, "uploadFile", io=open(local_path, "rb"), path=remote_path, target=str(int(target)))
+        return UnpreparedResource(File, "uploadFile", io=open(local_path, "rb"), path=remote_path,
+                                  target=str(int(target)))
 
     @staticmethod
     def from_io(obj: BinaryIO, remote_path: str, target: Union["Group", int]):

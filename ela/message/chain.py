@@ -10,7 +10,7 @@ MODEL_ARGS = Type[Union[RemoteResource, MessageModel]]
 
 
 class MessageChain(BaseModel):
-    __root__: List[Any] = []
+    __root__: List[Any]
 
     @validator("__root__")
     def parse_obj(cls, obj):
