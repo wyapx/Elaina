@@ -59,6 +59,11 @@ class MessageChain(BaseModel):
     __repr__ = __str__
 
 
+class CacheMessage(BaseModel):
+    type: str
+    messageChain: MessageChain
+
+
 class Quote(MessageModel):
     type = MessageModelTypes.Quote
     id: int

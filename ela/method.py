@@ -42,6 +42,10 @@ class GetInfoFromTarget(BaseSession):
     target: int
 
 
+class GetInfoFromId(BaseSession):
+    id: int
+
+
 class GetMemberProfile(GetInfoFromTarget):
     memberId: int
 

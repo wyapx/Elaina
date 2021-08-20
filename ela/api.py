@@ -8,7 +8,7 @@ import aiohttp
 from . import method
 from .component.friend import FriendList, Profile
 from .component.group import Group, GroupList, GroupMemberList, FileList, File
-from .message.chain import MessageChain
+from .message.chain import MessageChain, CacheMessage
 from .method import NewResponse
 from .network import Network
 from .types import T
@@ -58,16 +58,12 @@ class API:
             return_obj
         )
 
-    async def getMessageFromId(
-            self,
-            message_id: int,
-            msgtype: Type[T.MessageType]
-    ) -> T.MessageType:
-        return msgtype(
-            **(await self._send_req("messageFromId", method.GetInfoFromTarget(
-                target=message_id,
+    async def getMessageFromId(self, message_id: int) -> CacheMessage:
+        return CacheMessage(
+            **(await self._send_req("messageFromId", method.GetInfoFromId(
+                id=message_id,
                 sessionKey=self.session_key
-            )))
+            ), return_obj="data"))
         )
 
     async def sendGroupMessage(
