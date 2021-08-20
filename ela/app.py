@@ -101,8 +101,8 @@ class Mirai(API):
         self._loop.run_until_complete(self._run())
         logger.info("Application Running")
         try:
-            self._loop.run_forever()
+            self._loop.run_until_complete(self._network.wait_closed())
         except KeyboardInterrupt:
             logger.warning("Interrupt received, exiting...")
-            self._loop.run_until_complete(self._network.stop())
+            self._loop.run_until_complete(self._network.close())
             self._loop.close()

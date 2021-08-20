@@ -16,11 +16,13 @@ class Network:
             loop = asyncio.get_event_loop()
         self.url = url
         self.qq = qq
+        self._closed = asyncio.Event()
         self._loop = loop
         self._session = aiohttp.ClientSession(loop=loop)
         self.__verify_key = verify_key
         self.__session_key = None
-        self.__stop = False
+        self.__running = True
+        self.__ws_count = 0
 
     @property
     def session_key(self) -> Optional[str]:
@@ -36,9 +38,12 @@ class Network:
             url += f"?{'&'.join([f'{k}={v}' for k, v in params.items()])}"
         return url
 
-    async def stop(self):
-        self.__stop = True
+    async def close(self):
+        self.__running = False
         await self._session.close()
+
+    async def wait_closed(self):
+        await self._closed.wait()
 
     async def _http_req(self, method: str, url: str, **kwargs):
         async with getattr(self._session, method.lower())(url, **kwargs) as resp:
@@ -55,17 +60,16 @@ class Network:
     async def _websocket_listen(self, ws: aiohttp.ClientWebSocketResponse, callback, name=None):
         connected = False
         ping_count = 0
-        while not self.__stop:
+        while self.__running:
             try:
                 msg = await ws.receive(15)
             except asyncio.TimeoutError:
                 if ping_count > 5:
                     logger.warning(f"websocket({name}): timeout, stop")
-                    await self.stop()
+                    await self.close()
                 else:
                     await ws.ping()
                     ping_count += 1
-                    # logger.debug(f"websocket({name}): ping")
                 continue
             if msg.type == aiohttp.WSMsgType.TEXT:
                 if connected:
@@ -87,14 +91,18 @@ class Network:
                             connected = True
             elif msg.type in (aiohttp.WSMsgType.CLOSE, aiohttp.WSMsgType.CLOSED):
                 logger.debug(f"websocket({name}): closed")
-                await self.stop()
+                await self.close()
                 break
             elif msg.type == aiohttp.WSMsgType.ERROR:
                 logger.debug(f"websocket({name}): raise an error")
                 break
             elif msg.type == aiohttp.WSMsgType.PONG:
-                # logger.debug(f"websocket({name}): pong")
                 ping_count = 0
+
+    def __done_cb(self, context: asyncio.Task):
+        self.__ws_count -= 1
+        if self.__ws_count <= 0:
+            self._closed.set()
 
     async def websocket(self, target: str, callback: Callable, *, name=None):
         """:return aiohttp.ClientWebSocketResponse"""
@@ -109,7 +117,7 @@ class Network:
         ws = await self._session.ws_connect(link, autoping=False)
         self._loop.create_task(
             self._websocket_listen(ws, callback, name)
-        )
+        ).add_done_callback(self.__done_cb)
         return ws
 
 

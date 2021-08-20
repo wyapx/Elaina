@@ -88,11 +88,15 @@ class ForwardMessage(MessageModel):
 
     def create_node(self,
                     sender_id: int,
-                    chain: List[Union[RemoteResource, MessageModel]] = None,
+                    chain: Union[MessageChain, List[MessageModel]] = None,
                     *, name=None, time_=-1, message_id=None):
         if time_ == -1:
             time_ = int(time.time())
         assert chain or message_id
+        if chain:
+            for item in chain:
+                if not isinstance(item, MessageModel):
+                    raise ValueError(type(item), "was not allow")
         self.nodeList.append(
             NodeInfo(
                 senderId=sender_id,
