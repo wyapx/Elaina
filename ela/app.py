@@ -99,10 +99,12 @@ class Mirai(API):
 
     def run(self):
         self._loop.run_until_complete(self._run())
-        logger.info("Application Running")
+        logger.info("Application running")
         try:
             self._loop.run_until_complete(self._network.wait_closed())
         except KeyboardInterrupt:
-            logger.warning("Interrupt received, exiting...")
+            logger.warning("Interrupt received, stopping...")
             self._loop.run_until_complete(self._network.close())
             self._loop.close()
+        finally:
+            logger.warning("Application Stopped")
