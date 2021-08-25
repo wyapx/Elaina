@@ -2,8 +2,8 @@ import asyncio
 import logging
 from typing import Dict, Callable
 
+from . import event
 from .api import API
-from .event import events
 from .message.type import message_type
 from .timer import Timer
 from .utils import run_function
@@ -69,13 +69,13 @@ class Mirai(API):
             data, sync_id = kwargs["data"], kwargs["syncId"]
             if sync_id != -1:
                 # event
-                if data["type"] in dir(events):
+                if data["type"] in dir(event):
                     if data["type"] in self._route:
                         self._timer.executor(
                             run_function(
                                 self._route[data["type"]],
                                 self,
-                                getattr(events, data["type"]).parse_obj(data)
+                                getattr(event, data["type"]).parse_obj(data)
                             )
                         )
                     else:

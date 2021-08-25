@@ -1,7 +1,7 @@
 import asyncio
 import logging
 from random import randint
-from typing import Type, Union, List, Dict, Callable
+from typing import Union, List, Dict, Callable
 
 import aiohttp
 
@@ -58,7 +58,7 @@ class API:
             return_obj
         )
 
-    async def getMessageFromId(self, message_id: int) -> CacheMessage:
+    async def getMessageFromId(self, message_id: T.Source) -> CacheMessage:
         return CacheMessage(
             **(await self._send_req("messageFromId", method.GetInfoFromId(
                 id=message_id,

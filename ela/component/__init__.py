@@ -1,4 +1,5 @@
 __all__ = [
     "friend",
-    "group"
+    "group",
+    "xml"
 ]

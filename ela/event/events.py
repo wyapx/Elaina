@@ -3,12 +3,8 @@ from typing import Optional, Dict, List, Any, Callable
 from pydantic import Field, BaseModel
 from ela.component.friend import Friend
 from ela.component.group import Permission, Group, Member, GroupHonorAction
+from ela.event.base import BotEvent, GroupEvent, FriendEvent
 from ela.method import NewResponse
-
-
-class BotEvent(BaseModel):
-    type: str
-    qq: int
 
 
 class BotOnlineEvent(BotEvent):
@@ -31,11 +27,6 @@ class BotReloginEvent(BotEvent):
     type = "BotReloginEvent"
 
 
-class FriendEvent(BaseModel):
-    type: str
-    friend: Friend
-
-
 class FriendInputStatusChangedEvent(FriendEvent):
     type = "FriendInputStatusChangedEvent"
     inputting: bool
@@ -53,10 +44,6 @@ class FriendRecallEvent(FriendEvent):
     messageId: int
     time: int
     operator: int
-
-
-class GroupEvent(BaseModel):
-    type: str
 
 
 class BotGroupPermissionChangeEvent(GroupEvent):
