@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import secrets
 from random import randint
 from typing import Union, List, Dict, Callable
 
@@ -41,9 +42,9 @@ class API:
         self.__ws = conn_list
 
     async def _send_req(self, command: str, content: method.BaseSession, *, subcommmand=None, return_obj=None):
-        req_id = randint(1, 1024)
+        req_id = secrets.token_hex(8)
         data = method.Request(
-            syncId=str(req_id),
+            syncId=req_id,
             command=command,
             subCommand=subcommmand,
             content=content
