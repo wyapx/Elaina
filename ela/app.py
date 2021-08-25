@@ -2,6 +2,8 @@ import asyncio
 import logging
 from typing import Dict, Callable
 
+import aiohttp
+
 from . import event
 from .api import API
 from .message.type import message_type
@@ -91,20 +93,31 @@ class Mirai(API):
                 else:
                     self._msg_future.pop(sync_id).set_result(data)
 
-    async def _run(self):
-        self.ws = [
-            await self._network.websocket("/message", self._handle_msg),
-            await self._network.websocket("/event", self._handle_ev)
-        ]
+    async def _run(self) -> bool:
+        try:
+            self.ws = [
+                await self._network.websocket("/message", self._handle_msg),
+                await self._network.websocket("/event", self._handle_ev)
+            ]
+        except aiohttp.ClientConnectorError:
+            logger.exception("Connection Error")
+            return False
+        return True
+
+    async def async_run(self):
+        try:
+            if await self._run():
+                logger.info("Application running")
+                try:
+                    await self._network.wait_closed()
+                except KeyboardInterrupt:
+                    logger.warning("Interrupt received, stopping...")
+                    await self._network.close()
+                    self._loop.close()
+            else:
+                await self._network.close()
+        finally:
+            logger.warning("Application stopped")
 
     def run(self):
-        self._loop.run_until_complete(self._run())
-        logger.info("Application running")
-        try:
-            self._loop.run_until_complete(self._network.wait_closed())
-        except KeyboardInterrupt:
-            logger.warning("Interrupt received, stopping...")
-            self._loop.run_until_complete(self._network.close())
-            self._loop.close()
-        finally:
-            logger.warning("Application Stopped")
+        self._loop.run_until_complete(self.async_run())

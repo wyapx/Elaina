@@ -108,11 +108,7 @@ class Network:
         """:return aiohttp.ClientWebSocketResponse"""
         if not name:
             name = target
-        if self.url.startswith("https"):
-            base = self.url.replace("https", "wss")
-        else:
-            base = self.url.replace("http", "ws")
-        link = parse.urljoin(base, target) + f"?verifyKey={self.__verify_key}&qq={self.qq}"
+        link = self.__join_url(target, {"qq": self.qq, "verifyKey": self.__verify_key}).replace("http", "ws")
         logger.debug("connecting to " + link)
         ws = await self._session.ws_connect(link, autoping=False)
         self._loop.create_task(
