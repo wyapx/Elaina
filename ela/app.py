@@ -104,6 +104,10 @@ class Mirai(API):
             return False
         return True
 
+    async def close(self):
+        await self._network.close()
+        await self._network.wait_closed()
+
     async def async_run(self):
         try:
             if await self._run():
@@ -113,11 +117,15 @@ class Mirai(API):
                 except KeyboardInterrupt:
                     logger.warning("Interrupt received, stopping...")
                     await self._network.close()
-                    self._loop.close()
             else:
                 await self._network.close()
         finally:
             logger.warning("Application stopped")
 
     def run(self):
-        self._loop.run_until_complete(self.async_run())
+        self._loop.create_task(self.async_run(), name="app")
+        try:
+            self._loop.run_forever()
+        except KeyboardInterrupt:
+            logger.warning("Interrupt received, stopping...")
+            self._loop.run_until_complete(self.close())

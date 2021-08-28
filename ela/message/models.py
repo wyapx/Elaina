@@ -175,7 +175,7 @@ class Json(MessageModel):
 
     def dict(self, *_, **kwargs) -> dict:
         data = dict(
-            self._iter(
+            *self._iter(
                 to_dict=True,
                 **kwargs
             )
