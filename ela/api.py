@@ -1,7 +1,6 @@
 import asyncio
 import logging
 import secrets
-from random import randint
 from typing import Union, List, Dict, Callable
 
 import aiohttp
