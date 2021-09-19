@@ -128,6 +128,14 @@ class API:
             target=target
         ))
 
+    async def setMemberPermission(self, group: T.Group, member: T.Member, is_admin: bool):
+        return await self._send_req("memberAdmin", method.SetMemberPermission(
+            sessionKey=self.session_key,
+            target=group,
+            memberId=member,
+            assign=is_admin
+        ))
+
     async def friendList(self) -> FriendList:
         return FriendList(
             __root__=await self._send_req("friendList", method.BaseSession(

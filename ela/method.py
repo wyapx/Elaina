@@ -50,6 +50,10 @@ class GetMemberProfile(GetInfoFromTarget):
     memberId: int
 
 
+class SetMemberPermission(GetMemberProfile):
+    assign: bool
+
+
 class FileOperation(GetInfoFromTarget):
     id: str
     group: Optional[int]
