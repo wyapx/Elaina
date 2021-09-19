@@ -67,6 +67,7 @@ class BotUnmuteEvent(GroupEvent):
 class BotJoinGroupEvent(GroupEvent):
     type = "BotJoinGroupEvent"
     group: Group
+    invitor: Optional[Member]
 
 
 class BotLeaveEventActive(GroupEvent):
@@ -77,6 +78,7 @@ class BotLeaveEventActive(GroupEvent):
 class BotLeaveEventKick(GroupEvent):
     type = "BotLeaveEventKick"
     group: Group
+    operator: Member
 
 
 class GroupRecallEvent(GroupEvent):
@@ -138,6 +140,7 @@ class GroupAllowMemberInviteEvent(GroupEvent):
 class MemberJoinEvent(GroupEvent):
     type = "MemberJoinEvent"
     member: Member
+    invitor: Optional[Member]
 
 
 class MemberLeaveEventKick(GroupEvent):

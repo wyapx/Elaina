@@ -1,3 +1,4 @@
+import datetime
 import hashlib
 import os
 from enum import Enum
@@ -91,6 +92,10 @@ class GroupSetting(BaseModel):
 class DownloadInfo(BaseModel):
     sha1: str
     md5: str
+    downloadTimes: int
+    uploaderId: int
+    uploadTime: datetime.datetime
+    lastModifyTime: datetime.datetime
     url: HttpUrl
 
 

@@ -1,7 +1,7 @@
 import asyncio
 import logging
 import secrets
-from typing import Union, List, Dict, Callable
+from typing import Union, List, Dict, Callable, BinaryIO
 
 import aiohttp
 
@@ -181,6 +181,25 @@ class API:
                 memberId=member
             )))
         )
+
+    async def uploadFile(self, target: T.Group, file: BinaryIO, remote_path: str) -> File:
+        if remote_path.rfind("/") != -1:
+            root, name = remote_path.rsplit("/", 1)
+        else:
+            root = ""
+            name = remote_path
+        form = aiohttp.FormData()
+        form.add_field("sessionKey", self.session_key)
+        form.add_field("type", "group")
+        form.add_field("path", root)
+        form.add_field("target", str(int(target)))
+        form.add_field("file", file, filename=name)
+
+        res = await self._network.post("/file/upload", data=form)
+        if res["code"] == 0:
+            return File(**res["data"])
+        else:
+            raise ConnectionError(res["code"], res["msg"])
 
     async def fileList(self, target: [T.Group, T.Friend], parent_id="") -> FileList:
         return FileList(

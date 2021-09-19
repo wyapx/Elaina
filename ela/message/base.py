@@ -78,9 +78,6 @@ class UnpreparedResource:
     async def uploadVoice(self, network, io: BinaryIO, utype: str):
         return await self.upload(network, "/uploadVoice", utype, io, "voice")
 
-    async def uploadFile(self, network, io: BinaryIO, utype: str, target: str, path: str):
-        return await self.upload(network, "/file/upload", utype, io, "file", target=target, path=path)
-
     async def prepare(self, network, utype):
         """
         :type network: mpy.network.Network

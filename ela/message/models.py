@@ -121,6 +121,7 @@ class FlashImage(Image):
 
 class Voice(MessageModel, RemoteResource):
     type = MessageModelTypes.Voice
+    length: Optional[int]
     voiceId: Optional[str]
 
     def __init__(self, voiceId=None, path=None, url=None, base64=None, **_):
@@ -275,17 +276,6 @@ class File(MessageModel):
 
     def __str__(self):
         return f"[File::name='{self.name}']"
-
-    @staticmethod
-    def from_path(local_path: str, remote_path: str, target: Union["Group", int]):
-        if not os.path.isfile(local_path):
-            raise FileNotFoundError(local_path)
-        return UnpreparedResource(File, "uploadFile", io=open(local_path, "rb"), path=remote_path,
-                                  target=str(int(target)))
-
-    @staticmethod
-    def from_io(obj: BinaryIO, remote_path: str, target: Union["Group", int]):
-        return UnpreparedResource(File, "uploadFile", io=obj, path=remote_path, target=str(int(target)))
 
 
 message_model = {
