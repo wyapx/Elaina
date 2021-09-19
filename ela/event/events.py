@@ -1,3 +1,4 @@
+import datetime
 from typing import Optional, Dict, List, Any, Callable
 
 from pydantic import Field, BaseModel
@@ -42,7 +43,7 @@ class FriendRecallEvent(FriendEvent):
     type = "FriendRecallEvent"
     authorId: int
     messageId: int
-    time: int
+    time: datetime.datetime
     operator: int
 
 
@@ -85,7 +86,7 @@ class GroupRecallEvent(GroupEvent):
     type = "GroupRecallEvent"
     authorId: int
     messageId: int
-    time: int
+    time: datetime.datetime
     group: Group
     operator: Member
 
