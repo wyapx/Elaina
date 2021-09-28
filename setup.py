@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='Elaina',
-    version='0.1.0',
+    version='0.1.1',
     packages=['ela', 'ela.event', 'ela.message', 'ela.component'],
     url='https://github.com/wyapx/Elaina',
     license='LGPL v2.1',

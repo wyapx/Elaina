@@ -1,11 +1,13 @@
 import logging
 import asyncio
+import functools
 from typing import List, Union
 
 from .message.base import MessageModel, RemoteResource, UnpreparedResource
 from .types import T
 
 logger = logging.getLogger(__name__)
+_LOOP = asyncio.get_event_loop()
 
 
 async def run_function(func, *args, **kwargs):
@@ -42,3 +44,8 @@ async def prepare_chain(
         return new_chain
     else:
         raise TypeError("expect list chain, but %s got" % type(chain))
+
+
+def call_later(delay: int, func, *args, **kwargs) -> asyncio.TimerHandle:
+    logger.debug(f"function {func} will execute in {delay}s")
+    return _LOOP.call_later(delay, run_function(func, *args, **kwargs))
