@@ -101,7 +101,7 @@ class Image(MessageModel, RemoteResource):
 
     @staticmethod
     def from_bytes(data: bytes):
-        return super(Image).from_io(BytesIO(data))
+        return Image.from_io(BytesIO(data))
 
     def __str__(self):
         return f"[mirai:image:{self.imageId}]"
@@ -122,7 +122,7 @@ class FlashImage(Image):
 
     @staticmethod
     def from_bytes(data: bytes):
-        return super(FlashImage).from_io(BytesIO(data))
+        return FlashImage.from_io(BytesIO(data))
 
     def __str__(self):
         return f"[mirai:flash:{self.imageId}]"
@@ -159,7 +159,7 @@ class Voice(MessageModel, RemoteResource):
 
     @staticmethod
     def from_bytes(data: bytes):
-        return super(Voice).from_io(BytesIO(data))
+        return Voice.from_io(BytesIO(data))
 
     def __str__(self):
         return f"[mirai:voice:{self.voiceId}]"
