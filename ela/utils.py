@@ -50,4 +50,4 @@ async def prepare_chain(
 
 def call_later(delay: int, func, *args, **kwargs) -> asyncio.TimerHandle:
     logger.debug(f"function {func} will execute in {delay}s")
-    return _LOOP.call_later(delay, run_function(func, *args, **kwargs))
+    return _LOOP.call_later(delay, _LOOP.create_task, run_function(func, *args, **kwargs))
