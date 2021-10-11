@@ -14,7 +14,7 @@ async def run_function(func, *args, **kwargs):
     if asyncio.iscoroutinefunction(func):
         return await func(*args, **kwargs)
     elif asyncio.iscoroutine(func):
-        return func
+        return await func
     else:
         return func(*args, **kwargs)
 
