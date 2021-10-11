@@ -149,7 +149,7 @@ class Voice(MessageModel, RemoteResource):
         return UnpreparedResource(Voice, "uploadVoice", io=obj)
 
     def __str__(self):
-        return f"[mirai:voice:{self.imageId}]"
+        return f"[mirai:voice:{self.voiceId}]"
 
 
 class Xml(MessageModel):
