@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from enum import Enum
 from pathlib import Path
-from typing import Optional, Type, BinaryIO
+from typing import Optional, Type, BinaryIO, Union
 
 import aiohttp
 from pydantic import BaseModel, HttpUrl
@@ -51,6 +51,11 @@ class RemoteResource(BaseModel):
     @staticmethod
     @abstractmethod
     def from_io(obj: BinaryIO):
+        pass
+
+    @staticmethod
+    @abstractmethod
+    def from_bytes(data: bytes):
         pass
 
 

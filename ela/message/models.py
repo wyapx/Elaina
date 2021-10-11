@@ -1,6 +1,7 @@
 import os
 import random
 from enum import Enum
+from io import BytesIO
 from typing import Optional, Union, Literal, BinaryIO
 
 from .base import MessageModel, RemoteResource, MessageModelTypes, UnpreparedResource
@@ -98,6 +99,10 @@ class Image(MessageModel, RemoteResource):
     def from_io(obj: BinaryIO):
         return UnpreparedResource(Image, "uploadImage", io=obj)
 
+    @staticmethod
+    def from_bytes(data: bytes):
+        return super(Image).from_io(BytesIO(data))
+
     def __str__(self):
         return f"[mirai:image:{self.imageId}]"
 
@@ -114,6 +119,10 @@ class FlashImage(Image):
     @staticmethod
     def from_io(obj: BinaryIO):
         return UnpreparedResource(FlashImage, "uploadImage", io=obj)
+
+    @staticmethod
+    def from_bytes(data: bytes):
+        return super(FlashImage).from_io(BytesIO(data))
 
     def __str__(self):
         return f"[mirai:flash:{self.imageId}]"
@@ -147,6 +156,10 @@ class Voice(MessageModel, RemoteResource):
     @staticmethod
     def from_io(obj: BinaryIO):
         return UnpreparedResource(Voice, "uploadVoice", io=obj)
+
+    @staticmethod
+    def from_bytes(data: bytes):
+        return super(Voice).from_io(BytesIO(data))
 
     def __str__(self):
         return f"[mirai:voice:{self.voiceId}]"
