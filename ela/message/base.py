@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from enum import Enum
 from pathlib import Path
-from typing import Optional, Type, BinaryIO, Union
+from typing import Optional, Type, BinaryIO
 
 import aiohttp
 from pydantic import BaseModel, HttpUrl

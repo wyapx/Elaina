@@ -1,10 +1,12 @@
 # Elaina
+
 一个高性能的mirai sdk（基于mirai-api-http）
 
-## 运行要求 
-Python 3.8+ 
+## 运行要求
 
-Mirai-API-HTTP v2.0+ 
+Python 3.8+
+
+Mirai-API-HTTP v2.0+
 
 注：**Mirai-API-HTTP需要启用ws adapter和http adapter**
 

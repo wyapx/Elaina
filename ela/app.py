@@ -33,6 +33,7 @@ class Mirai(API):
             elif typ in self._route:
                 raise AttributeError(f"event {typ} already register")
             self._route[typ] = func
+
         return __
 
     async def _handle_msg(self, **kwargs):

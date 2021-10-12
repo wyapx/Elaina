@@ -18,6 +18,7 @@ def supports_color() -> bool:
     Return True if the running system's terminal supports color,
     and False otherwise.
     """
+
     def vt_codes_enabled_in_windows_registry():
         """
         Check the Windows Registry to see if VT code handling has been enabled
@@ -41,13 +42,13 @@ def supports_color() -> bool:
     is_a_tty = hasattr(sys.stdout, 'isatty') and sys.stdout.isatty()
 
     return is_a_tty and (
-        sys.platform != 'win32' or
-        'ANSICON' in os.environ or
-        # Windows Terminal supports VT codes.
-        'WT_SESSION' in os.environ or
-        # Microsoft Visual Studio Code's built-in terminal supports colors.
-        os.environ.get('TERM_PROGRAM') == 'vscode' or
-        vt_codes_enabled_in_windows_registry()
+            sys.platform != 'win32' or
+            'ANSICON' in os.environ or
+            # Windows Terminal supports VT codes.
+            'WT_SESSION' in os.environ or
+            # Microsoft Visual Studio Code's built-in terminal supports colors.
+            os.environ.get('TERM_PROGRAM') == 'vscode' or
+            vt_codes_enabled_in_windows_registry()
     )
 
 

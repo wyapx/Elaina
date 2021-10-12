@@ -1,5 +1,5 @@
-import logging
 import functools
+import logging
 
 from .utils import run_function
 

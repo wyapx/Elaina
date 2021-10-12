@@ -1,11 +1,11 @@
 from typing import Union, List
-from .component.group import Group, Member
-from .component.friend import Friend
 
+from .component.friend import Friend
+from .component.group import Group, Member
 from .message.base import MessageModel, RemoteResource, UnpreparedResource
 from .message.chain import MessageChain
-from .message.type import GroupMessage, FriendMessage, TempMessage
 from .message.models import Source
+from .message.type import GroupMessage, FriendMessage, TempMessage
 
 
 class T:

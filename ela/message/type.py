@@ -1,9 +1,11 @@
-from pydantic import BaseModel
 from typing import Optional, Union
-from .chain import MessageChain
-from .models import Source
+
+from pydantic import BaseModel
+
 from ela.component.friend import Friend
 from ela.component.group import Member, Group
+from .chain import MessageChain
+from .models import Source
 
 
 class Client(BaseModel):
@@ -34,7 +36,7 @@ class MessageType(BaseModel):
 class FriendMessage(MessageType):
     type: str = "FriendMessage"
     sender: Friend
-    
+
 
 class GroupMessage(MessageType):
     type: str = "GroupMessage"

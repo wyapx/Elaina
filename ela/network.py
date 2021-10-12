@@ -1,10 +1,11 @@
+import asyncio
 import json
 import logging
-import asyncio
 from typing import Callable, Any, Optional
+from urllib import parse
 
 import aiohttp
-from urllib import parse
+
 from .utils import assert_success
 
 logger = logging.getLogger(__name__)
@@ -122,6 +123,7 @@ class _HTTP:
     弃用的类
     里面的功能可以正常使用
     """
+
     def __init__(self, url: str, qq: int, verify_key: str, *, loop=None):
         if not loop:
             loop = asyncio.get_event_loop()
@@ -159,7 +161,8 @@ class _HTTP:
 
     async def release(self):
         assert_success(
-            await self._http_req("POST", self.__join_url("/bind"), json={"sessionKey": self.__session_key, "qq": self.qq})
+            await self._http_req("POST", self.__join_url("/bind"),
+                                 json={"sessionKey": self.__session_key, "qq": self.qq})
         )
 
     async def bind(self):
@@ -167,5 +170,6 @@ class _HTTP:
             await self._http_req("POST", self.__join_url("/verify"), json={"verifyKey": self.__verify_key}),
             return_obj="session"
         )
-        assert_success(await self._http_req("POST", self.__join_url("/bind"), json={"sessionKey": session_key, "qq": self.qq}))
+        assert_success(
+            await self._http_req("POST", self.__join_url("/bind"), json={"sessionKey": session_key, "qq": self.qq}))
         self.__session_key = session_key

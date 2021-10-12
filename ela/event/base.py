@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+
 from ela.component.friend import Friend
 
 
@@ -14,5 +15,3 @@ class FriendEvent(BaseModel):
 
 class GroupEvent(BaseModel):
     type: str
-
-

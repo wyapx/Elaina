@@ -1,6 +1,5 @@
-import logging
 import asyncio
-import functools
+import logging
 from typing import List, Union
 
 from .message.base import MessageModel, RemoteResource, UnpreparedResource
