@@ -40,7 +40,6 @@ class Plain(MessageModel):
 class At(MessageModel):
     type = MessageModelTypes.At
     target: int
-    display: Optional[str]
 
     def __init__(self, target: Union[int, Member], **_):
         super(At, self).__init__(target=target)
