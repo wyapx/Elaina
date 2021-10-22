@@ -94,7 +94,7 @@ class Mirai(API):
                 else:
                     self._msg_future.pop(sync_id).set_result(data)
 
-    async def _run(self) -> bool:
+    async def _connect(self) -> bool:
         try:
             self.ws = [
                 await self._network.websocket("/message", self._handle_msg),
@@ -109,27 +109,19 @@ class Mirai(API):
         await self._network.close()
         await self._network.wait_closed()
 
-    async def async_run(self, future: asyncio.Future = None):
+    async def async_run(self):
         try:
-            if await self._run():
+            if await self._connect():
                 logger.info("Application running")
-                try:
-                    await self._network.wait_closed()
-                except KeyboardInterrupt:
-                    logger.warning("Interrupt received, stopping...")
-                    await self._network.close()
-            else:
-                await self._network.close()
+                await self._network.wait_closed()
         finally:
             logger.warning("Application stopped")
-            if future:
-                future.set_result(None)
 
     def run(self):
-        fut = self._loop.create_future()
-        self._loop.create_task(self.async_run(fut), name="app")
         try:
-            self._loop.run_until_complete(fut)
+            self._loop.run_until_complete(
+                self._loop.create_task(self.async_run(), name="app")
+            )
         except KeyboardInterrupt:
             logger.warning("Interrupt received, stopping...")
             self._loop.run_until_complete(self.close())
