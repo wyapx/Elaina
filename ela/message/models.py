@@ -67,7 +67,7 @@ class Face(MessageModel):
         )
 
     def __str__(self):
-        return f"[mirai:face:{self.faceId}']"
+        return f"[mirai:face:{self.faceId}]"
 
 
 class Image(MessageModel, RemoteResource):
@@ -129,7 +129,7 @@ class FlashImage(Image):
 
 class Voice(MessageModel, RemoteResource):
     type = MessageModelTypes.Voice
-    length: Optional[int]
+    #length: Optional[int]
     voiceId: Optional[str]
 
     def __init__(self, voiceId=None, path=None, url=None, base64=None, **_):
