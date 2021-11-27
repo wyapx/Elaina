@@ -1,10 +1,10 @@
 import time
-
-from .models import message_model
-from .base import MessageModel, RemoteResource, MessageModelTypes
 from typing import List, Union, Type, Optional, Any, Tuple, Generator, Iterable
+
 from pydantic import BaseModel, validator
 
+from .base import MessageModel, RemoteResource, MessageModelTypes, Unprepared, UnpreparedResource
+from .models import message_model
 
 MODEL_ARGS = Type[Union[RemoteResource, MessageModel]]
 
@@ -24,13 +24,13 @@ class MessageChain(BaseModel):
                 raise ValueError(item)
         return res
 
-    def get_first_model(self, model_type: Union[Tuple[MODEL_ARGS], MODEL_ARGS])\
+    def get_first_model(self, model_type: Union[Tuple[MODEL_ARGS], MODEL_ARGS]) \
             -> Union[MessageModel, RemoteResource, None]:
         for item in self.__root__:
             if isinstance(item, model_type):
                 return item
 
-    def get_all_model(self, model_type: Union[Tuple[MODEL_ARGS], MODEL_ARGS])\
+    def get_all_model(self, model_type: Union[Tuple[MODEL_ARGS], MODEL_ARGS]) \
             -> Generator[Union[RemoteResource, MessageModel], None, None]:
         for item in self.__root__:
             if isinstance(item, model_type):
@@ -76,7 +76,7 @@ class Quote(MessageModel):
         return f"[Quote::id={self.id}]"
 
 
-class NodeInfo(BaseModel):
+class MessageNode(BaseModel):
     senderId: int
     time: int
     senderName: Optional[str]
@@ -87,9 +87,40 @@ class NodeInfo(BaseModel):
         return f'[Node::sender="{self.senderName}({self.senderId})",time="{self.time}"]'
 
 
-class ForwardMessage(MessageModel):
+class ForwardMessage(Unprepared):
+    def __init__(self, chain: Optional[List[Tuple[int, str, Union[list, int]]]] = None):
+        """
+        chain format:
+        [
+            (uin, name, msg_id), # or
+            (uin, name, MessageChain)
+        ]
+        """
+        self._raw_chain = chain
+
+    async def prepare(self, network, utype) -> "Forward":
+        msg = Forward()
+        for node in self._raw_chain:
+            uin, name, data = node
+            print(node)
+            if isinstance(data, int):
+                msg.create_node(uin, message_id=data, name=name)
+            elif isinstance(data, list):
+                chain = []
+                for component in data:
+                    if isinstance(component, Unprepared):
+                        chain.append(await component.prepare(network, utype))
+                    else:
+                        chain.append(component)
+                msg.create_node(uin, chain=chain, name=name)
+            else:
+                raise TypeError(data)
+        return msg
+
+
+class Forward(MessageModel):
     type = MessageModelTypes.Forward
-    nodeList: List[NodeInfo] = []
+    nodeList: List[MessageNode] = []
 
     def create_node(self,
                     sender_id: int,
@@ -98,12 +129,8 @@ class ForwardMessage(MessageModel):
         if time_ == -1:
             time_ = int(time.time())
         assert chain or message_id
-        if chain:
-            for item in chain:
-                if not isinstance(item, MessageModel):
-                    raise ValueError(type(item), "was not allow")
         self.nodeList.append(
-            NodeInfo(
+            MessageNode(
                 senderId=sender_id,
                 time=time_,
                 senderName=name,
@@ -121,12 +148,12 @@ class ForwardMessage(MessageModel):
         """
         self.create_node(sender.id, chain=chain, name=sender.memberName, message_id=message_id)
 
-    def add_node(self, node: NodeInfo):
+    def add_node(self, node: MessageNode):
         self.nodeList.append(node)
 
-    def __iter__(self) -> Iterable[NodeInfo]:
-        yield from self.__root__
+    def __iter__(self) -> Iterable[MessageNode]:
+        yield from self.nodeList
 
 
-message_model["Forward"] = ForwardMessage
+message_model["Forward"] = Forward
 message_model["Quote"] = Quote

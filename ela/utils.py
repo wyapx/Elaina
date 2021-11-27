@@ -1,9 +1,8 @@
 import asyncio
 import logging
-from typing import List, Union
+from typing import List, Union, Callable, Coroutine
 
-from .message.base import MessageModel, RemoteResource, UnpreparedResource
-from .types import T
+from .message.base import MessageModel, RemoteResource, Unprepared
 
 logger = logging.getLogger(__name__)
 _LOOP = asyncio.get_event_loop()
@@ -30,15 +29,11 @@ def assert_success(data: dict, return_obj=None):
         return data
 
 
-async def prepare_chain(
-        network,
-        utype: str,
-        chain: T.Chain
-) -> List[Union[MessageModel, RemoteResource]]:
+async def prepare_chain(network, utype: str, chain) -> List[Union[MessageModel, RemoteResource]]:
     if isinstance(chain, list):
         new_chain: List[Union[MessageModel, RemoteResource]] = []
         for item in chain:
-            if isinstance(item, UnpreparedResource):
+            if isinstance(item, Unprepared):
                 new_chain.append(await item.prepare(network, utype))
             else:
                 new_chain.append(item)
@@ -50,3 +45,18 @@ async def prepare_chain(
 def call_later(delay: int, func, *args, **kwargs) -> asyncio.TimerHandle:
     logger.debug(f"function {func} will execute in {delay}s")
     return _LOOP.call_later(delay, _LOOP.create_task, run_function(func, *args, **kwargs))
+
+
+async def async_retry(coro: Callable[[], Coroutine], count: int, *, loop=None) -> bool:
+    if not loop:
+        loop = asyncio.get_event_loop()
+    while count >= 0:
+        task = loop.create_task(coro())
+        if await task:
+            err = task.exception()
+            if err:
+                logger.exception(f"function {coro} raise an error, {count} times remain")
+                count -= 1
+            else:
+                return True
+    return False

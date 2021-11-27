@@ -80,6 +80,7 @@ class Network:
                         )
                     except:
                         logger.exception(f"({name}): Callback raise an error")
+                        logger.debug(msg.data)
                 else:
                     pkg = json.loads(msg.data)
                     if not pkg["syncId"]:

@@ -59,7 +59,16 @@ class RemoteResource(BaseModel):
         pass
 
 
-class UnpreparedResource:
+class Unprepared:
+    @abstractmethod
+    async def prepare(self, network, utype):
+        """
+        :type network: mpy.network.Network
+        :type utype: str
+        """
+
+
+class UnpreparedResource(Unprepared):
     __slots__ = ["resource", "action", "_kwargs"]
 
     def __init__(self, resource: Type[RemoteResource], action: str, **kwargs):

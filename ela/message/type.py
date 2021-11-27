@@ -15,7 +15,7 @@ class Client(BaseModel):
 
 class MessageType(BaseModel):
     type: str
-    messageChain: Optional[MessageChain]
+    messageChain: Optional["MessageChain"]
     sender: Union[Friend, Member, Client]
 
     def __eq__(self, other):
