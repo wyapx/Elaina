@@ -277,6 +277,17 @@ class MusicShare(MessageModel):
     musicUrl: str
     brief: str
 
+    def __init__(self, kind: str, title: str, summary: str, jump_url: str, pic_url: str, music_url: str, brief: str):
+        super(MusicShare, self).__init__(
+            kind=kind,
+            title=title,
+            summary=summary,
+            jumpUrl=jump_url,
+            pictureUrl=pic_url,
+            musicUrl=music_url,
+            brief=brief
+        )
+
     def __str__(self):
         return f"[MusicShare::title='{self.title}',musicUrl='{self.musicUrl}']"
 

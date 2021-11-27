@@ -141,7 +141,7 @@ class Forward(MessageModel):
 
     def add_message(self, sender, chain: List[Union[RemoteResource, MessageModel]] = None, message_id=None):
         """
-        :type sender: mpy.component.group.Member
+        :type sender: ela.component.group.Member
         :type chain:
         :type message_id: int
         :return: None
