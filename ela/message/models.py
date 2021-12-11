@@ -13,10 +13,10 @@ class Source(MessageModel):
     id: int
     time: int
 
-    def __init__(self, id: int, time: int, **_):
+    def __init__(self, id_: int, time_: int, **_):
         super(Source, self).__init__(
-            id=id,
-            time=time
+            id=id_,
+            time=time_
         )
 
     def __int__(self):
@@ -129,7 +129,7 @@ class FlashImage(Image):
 
 class Voice(MessageModel, RemoteResource):
     type = MessageModelTypes.Voice
-    #length: Optional[int]
+    length: Optional[int] = 0
     voiceId: Optional[str]
 
     def __init__(self, voiceId=None, path=None, url=None, base64=None, **_):
