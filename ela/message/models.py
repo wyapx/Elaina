@@ -13,10 +13,10 @@ class Source(MessageModel):
     id: int
     time: int
 
-    def __init__(self, id_: int, time_: int, **_):
+    def __init__(self, id: int, time: int, **_):
         super(Source, self).__init__(
-            id=id_,
-            time=time_
+            id=id,
+            time=time
         )
 
     def __int__(self):
