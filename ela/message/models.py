@@ -88,19 +88,19 @@ class Image(MessageModel, RemoteResource):
             base64=base64
         )
 
-    @staticmethod
-    def from_path(path: str):
+    @classmethod
+    def from_path(cls, path: str):
         if not os.path.isfile(path):
             raise FileNotFoundError(path)
-        return UnpreparedResource(Image, "uploadImage", io=open(path, "rb"))
+        return UnpreparedResource(cls, "uploadImage", io=open(path, "rb"))
 
-    @staticmethod
-    def from_io(obj: BinaryIO):
-        return UnpreparedResource(Image, "uploadImage", io=obj)
+    @classmethod
+    def from_io(cls, obj: BinaryIO):
+        return UnpreparedResource(cls, "uploadImage", io=obj)
 
-    @staticmethod
-    def from_bytes(data: bytes):
-        return Image.from_io(BytesIO(data))
+    @classmethod
+    def from_bytes(cls, data: bytes):
+        return cls.from_io(BytesIO(data))
 
     def __str__(self):
         return f"[mirai:image:{self.imageId}]"
@@ -108,20 +108,6 @@ class Image(MessageModel, RemoteResource):
 
 class FlashImage(Image):
     type = MessageModelTypes.FlashImage
-
-    @staticmethod
-    def from_path(path: str):
-        if not os.path.isfile(path):
-            raise FileNotFoundError(path)
-        return UnpreparedResource(FlashImage, "uploadImage", io=open(path, "rb"))
-
-    @staticmethod
-    def from_io(obj: BinaryIO):
-        return UnpreparedResource(FlashImage, "uploadImage", io=obj)
-
-    @staticmethod
-    def from_bytes(data: bytes):
-        return FlashImage.from_io(BytesIO(data))
 
     def __str__(self):
         return f"[mirai:flash:{self.imageId}]"
@@ -146,19 +132,19 @@ class Voice(MessageModel, RemoteResource):
             base64=base64
         )
 
-    @staticmethod
-    def from_path(path: str):
+    @classmethod
+    def from_path(cls, path: str):
         if not os.path.isfile(path):
             raise FileNotFoundError(path)
-        return UnpreparedResource(Voice, "uploadVoice", io=open(path, "rb"))
+        return UnpreparedResource(cls, "uploadVoice", io=open(path, "rb"))
 
-    @staticmethod
-    def from_io(obj: BinaryIO):
-        return UnpreparedResource(Voice, "uploadVoice", io=obj)
+    @classmethod
+    def from_io(cls, obj: BinaryIO):
+        return UnpreparedResource(cls, "uploadVoice", io=obj)
 
-    @staticmethod
-    def from_bytes(data: bytes):
-        return Voice.from_io(BytesIO(data))
+    @classmethod
+    def from_bytes(cls, data: bytes):
+        return cls.from_io(BytesIO(data))
 
     def __str__(self):
         return f"[mirai:voice:{self.voiceId}]"

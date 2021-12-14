@@ -43,19 +43,19 @@ class RemoteResource(BaseModel):
                 raise ConnectionError(resp.status, await resp.text())
             return await resp.content.readexactly(resp.content_length)
 
-    @staticmethod
+    @classmethod
     @abstractmethod
-    def from_path(path: str):
+    def from_path(cls, path: str):
         pass
 
-    @staticmethod
+    @classmethod
     @abstractmethod
-    def from_io(obj: BinaryIO):
+    def from_io(cls, obj: BinaryIO):
         pass
 
-    @staticmethod
+    @classmethod
     @abstractmethod
-    def from_bytes(data: bytes):
+    def from_bytes(cls, data: bytes):
         pass
 
 
