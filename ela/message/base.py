@@ -77,6 +77,13 @@ class UnpreparedResource(Unprepared):
         self._kwargs = kwargs
 
     @staticmethod
+    def _check_state(data: dict):
+        if "code" not in data:
+            return data
+        else:
+            raise ConnectionError(data["code"], data["msg"])
+
+    @staticmethod
     async def upload(network, action: str, utype: str, io: BinaryIO, file_type: str, **extra_field) -> dict:
         form = aiohttp.FormData()
         form.add_field("sessionKey", network.session_key)
@@ -87,17 +94,12 @@ class UnpreparedResource(Unprepared):
         return await network.post(action, data=form)
 
     async def uploadImage(self, network, io: BinaryIO, utype: str):
-        return await self.upload(network, "/uploadImage", utype, io, "img")
+        return self._check_state(await self.upload(network, "/uploadImage", utype, io, "img"))
 
     async def uploadVoice(self, network, io: BinaryIO, utype: str):
-        return await self.upload(network, "/uploadVoice", utype, io, "voice")
+        return self._check_state(await self.upload(network, "/uploadVoice", utype, io, "voice"))
 
     async def prepare(self, network, utype):
-        """
-        :type network: mpy.network.Network
-        :type utype: str
-        """
-        data = await self.action(network, utype=utype, **self._kwargs)
-        if "code" in data:
-            raise ConnectionError(data["code"], data["msg"])
-        return self.resource(**data)
+        return self.resource(
+            **(await self.action(network, utype=utype, **self._kwargs))
+        )
