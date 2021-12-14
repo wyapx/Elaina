@@ -71,10 +71,11 @@ class Unprepared:
 class UnpreparedResource(Unprepared):
     __slots__ = ["resource", "action", "_kwargs"]
 
-    def __init__(self, resource: Type[RemoteResource], action: str, **kwargs):
+    def __init__(self, resource: Type[RemoteResource], action: str, check_resource=True, **kwargs):
         self.resource = resource
         self.action = getattr(self, action)
         self._kwargs = kwargs
+        self._check_resource = check_resource
 
     @staticmethod
     def _check_state(data: dict):
@@ -100,6 +101,11 @@ class UnpreparedResource(Unprepared):
         return self._check_state(await self.upload(network, "/uploadVoice", utype, io, "voice"))
 
     async def prepare(self, network, utype):
-        return self.resource(
+        ret = self.resource(
             **(await self.action(network, utype=utype, **self._kwargs))
         )
+        if self._check_resource:
+            async with aiohttp.request("GET", ret.url) as resp:
+                if resp.status == 200 and resp.content_length:
+                    return ret
+                raise Exception("resource broken")
