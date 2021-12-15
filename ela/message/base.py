@@ -63,7 +63,7 @@ class Unprepared:
     @abstractmethod
     async def prepare(self, network, utype):
         """
-        :type network: mpy.network.Network
+        :type network: ela.network.Network
         :type utype: str
         """
 
