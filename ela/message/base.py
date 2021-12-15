@@ -20,7 +20,6 @@ class MessageModelTypes(str, Enum):
     App = "App"
     Poke = "Poke"
     FlashImage = "FlashImage"
-    Unknown = "Unknown"
     Voice = "Voice"
     Forward = "Forward"
     File = "File"
@@ -43,19 +42,19 @@ class RemoteResource(BaseModel):
                 raise ConnectionError(resp.status, await resp.text())
             return await resp.content.readexactly(resp.content_length)
 
-    @staticmethod
+    @classmethod
     @abstractmethod
-    def from_path(path: str):
+    def from_path(cls, path: str):
         pass
 
-    @staticmethod
+    @classmethod
     @abstractmethod
-    def from_io(obj: BinaryIO):
+    def from_io(cls, obj: BinaryIO):
         pass
 
-    @staticmethod
+    @classmethod
     @abstractmethod
-    def from_bytes(data: bytes):
+    def from_bytes(cls, data: bytes):
         pass
 
 
@@ -63,7 +62,7 @@ class Unprepared:
     @abstractmethod
     async def prepare(self, network, utype):
         """
-        :type network: mpy.network.Network
+        :type network: ela.network.Network
         :type utype: str
         """
 
@@ -71,10 +70,11 @@ class Unprepared:
 class UnpreparedResource(Unprepared):
     __slots__ = ["resource", "action", "_kwargs"]
 
-    def __init__(self, resource: Type[RemoteResource], action: str, **kwargs):
+    def __init__(self, resource: Type[RemoteResource], action: str, check_resource=True, **kwargs):
         self.resource = resource
         self.action = getattr(self, action)
         self._kwargs = kwargs
+        self._check_resource = check_resource
 
     @staticmethod
     def _check_state(data: dict):
@@ -94,12 +94,21 @@ class UnpreparedResource(Unprepared):
         return await network.post(action, data=form)
 
     async def uploadImage(self, network, io: BinaryIO, utype: str):
-        return self._check_state(await self.upload(network, "/uploadImage", utype, io, "img"))
+        return self._check_state(
+            await self.upload(network, "/uploadImage", utype, io, "img")
+        )
 
     async def uploadVoice(self, network, io: BinaryIO, utype: str):
-        return self._check_state(await self.upload(network, "/uploadVoice", utype, io, "voice"))
+        return self._check_state(
+            await self.upload(network, "/uploadVoice", utype, io, "voice")
+        )
 
     async def prepare(self, network, utype):
-        return self.resource(
+        ret = self.resource(
             **(await self.action(network, utype=utype, **self._kwargs))
         )
+        if self._check_resource:
+            async with aiohttp.request("GET", ret.url) as resp:
+                if resp.status == 200 and resp.content_length:
+                    return ret
+                raise Exception("resource broken")
