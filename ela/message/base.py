@@ -20,7 +20,6 @@ class MessageModelTypes(str, Enum):
     App = "App"
     Poke = "Poke"
     FlashImage = "FlashImage"
-    Unknown = "Unknown"
     Voice = "Voice"
     Forward = "Forward"
     File = "File"
@@ -95,10 +94,14 @@ class UnpreparedResource(Unprepared):
         return await network.post(action, data=form)
 
     async def uploadImage(self, network, io: BinaryIO, utype: str):
-        return self._check_state(await self.upload(network, "/uploadImage", utype, io, "img"))
+        return self._check_state(
+            await self.upload(network, "/uploadImage", utype, io, "img")
+        )
 
     async def uploadVoice(self, network, io: BinaryIO, utype: str):
-        return self._check_state(await self.upload(network, "/uploadVoice", utype, io, "voice"))
+        return self._check_state(
+            await self.upload(network, "/uploadVoice", utype, io, "voice")
+        )
 
     async def prepare(self, network, utype):
         ret = self.resource(
