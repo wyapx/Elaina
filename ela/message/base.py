@@ -5,6 +5,7 @@ from typing import Optional, Type, BinaryIO
 
 import aiohttp
 from pydantic import BaseModel, HttpUrl
+from ela.error import ResourceBrokenError
 
 
 class MessageModelTypes(str, Enum):
@@ -111,4 +112,5 @@ class UnpreparedResource(Unprepared):
             async with aiohttp.request("GET", ret.url) as resp:
                 if resp.status == 200 and resp.content_length:
                     return ret
-                raise Exception("resource broken")
+                raise ResourceBrokenError(resp.status)
+
