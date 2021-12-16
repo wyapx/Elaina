@@ -92,6 +92,7 @@ class UnpreparedResource(Unprepared):
         form.add_field("type", utype)
         for k, v in extra_field.items():
             form.add_field(k, v)
+        io.seek(0)
         form.add_field(file_type, BytesIO(io.read()))
         return await network.post(action, data=form)
 
