@@ -92,7 +92,7 @@ class UnpreparedResource(Unprepared):
         form.add_field("type", utype)
         for k, v in extra_field.items():
             form.add_field(k, v)
-        form.add_field(file_type, BytesIO(io))
+        form.add_field(file_type, BytesIO(io.read()))
         return await network.post(action, data=form)
 
     async def uploadImage(self, network, io: BinaryIO, utype: str):
