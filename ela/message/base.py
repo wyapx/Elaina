@@ -2,6 +2,7 @@ from abc import abstractmethod
 from enum import Enum
 from pathlib import Path
 from typing import Optional, Type, BinaryIO
+from io import BytesIO
 
 import aiohttp
 from pydantic import BaseModel, HttpUrl
@@ -91,7 +92,7 @@ class UnpreparedResource(Unprepared):
         form.add_field("type", utype)
         for k, v in extra_field.items():
             form.add_field(k, v)
-        form.add_field(file_type, io)
+        form.add_field(file_type, BytesIO(io))
         return await network.post(action, data=form)
 
     async def uploadImage(self, network, io: BinaryIO, utype: str):
@@ -112,5 +113,5 @@ class UnpreparedResource(Unprepared):
             async with aiohttp.request("GET", ret.url) as resp:
                 if resp.status == 200 and resp.content_length:
                     return ret
-                raise ResourceBrokenError(resp.status)
+                raise ResourceBrokenError(ret.url)
 
