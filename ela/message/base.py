@@ -82,8 +82,7 @@ class UnpreparedResource(Unprepared):
     def _check_state(data: dict):
         if "code" not in data:
             return data
-        else:
-            raise ConnectionError(data["code"], data["msg"])
+        raise ConnectionError(data["code"], data["msg"])
 
     @staticmethod
     async def upload(network, action: str, utype: str, io: BinaryIO, file_type: str, **extra_field) -> dict:
@@ -114,5 +113,5 @@ class UnpreparedResource(Unprepared):
             async with aiohttp.request("GET", ret.url) as resp:
                 if resp.status == 200 and resp.content_length:
                     return ret
-                raise ResourceBrokenError(ret.url)
+                raise ResourceBrokenError(resp.status, ret.url)
 

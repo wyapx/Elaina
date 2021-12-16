@@ -30,12 +30,12 @@ def assert_success(data: dict, return_obj=None):
         return data
 
 
-async def prepare_chain(network, utype: str, chain) -> List[Union[MessageModel, RemoteResource]]:
+async def prepare_chain(network, utype: str, chain, retry_count=5) -> List[Union[MessageModel, RemoteResource]]:
     if isinstance(chain, list):
         new_chain: List[Union[MessageModel, RemoteResource]] = []
         for item in chain:
             if isinstance(item, Unprepared):
-                for c in range(1, 3):
+                for c in range(retry_count):
                     try:
                         new_chain.append(await item.prepare(network, utype))
                         break
