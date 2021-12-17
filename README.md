@@ -1,5 +1,7 @@
 # Elaina
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/817020a83bed49f9b5be3c150eedfc91)](https://app.codacy.com/gh/wyapx/Elaina?utm_source=github.com&utm_medium=referral&utm_content=wyapx/Elaina&utm_campaign=Badge_Grade_Settings)
+
 一个高性能的mirai sdk（基于mirai-api-http）
 
 ## 运行要求
