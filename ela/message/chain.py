@@ -3,7 +3,7 @@ from typing import List, Union, Type, Optional, Any, Tuple, Generator, Iterable
 
 from pydantic import BaseModel, validator
 
-from .base import MessageModel, RemoteResource, MessageModelTypes, Unprepared, UnpreparedResource
+from .base import MessageModel, RemoteResource, MessageModelTypes, Unprepared
 from .models import message_model
 
 MODEL_ARGS = Type[Union[RemoteResource, MessageModel]]
