@@ -1,3 +1,4 @@
+import asyncio
 import functools
 import logging
 
@@ -9,7 +10,10 @@ logger = logging.getLogger(__name__)
 def print_result(func):
     @functools.wraps(func)
     async def __inner(*args, **kwargs):
-        result = await run_function(func, *args, **kwargs)
+        if asyncio.iscoroutinefunction(func):
+            result = await run_function(func, *args, **kwargs)
+        else:
+            result = run_function(func, *args, **kwargs)
         logger.debug(f"{func.__code__.co_name}->({args}, {kwargs})")
         return result
 
