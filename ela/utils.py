@@ -3,6 +3,7 @@ import logging
 from typing import List, Union, Callable, Coroutine
 
 from .message.base import MessageModel, RemoteResource, Unprepared
+from .error import ResourceBrokenError
 
 logger = logging.getLogger(__name__)
 _LOOP = asyncio.get_event_loop()
@@ -23,18 +24,25 @@ def assert_success(data: dict, return_obj=None):
             raise ValueError("empty element")
     elif data["code"] != 0:
         raise ConnectionError(data["code"], data["msg"])
-    if return_obj:
+    elif return_obj:
         return data.get(return_obj)
     else:
         return data
 
 
-async def prepare_chain(network, utype: str, chain) -> List[Union[MessageModel, RemoteResource]]:
+async def prepare_chain(network, utype: str, chain, retry_count=5) -> List[Union[MessageModel, RemoteResource]]:
     if isinstance(chain, list):
         new_chain: List[Union[MessageModel, RemoteResource]] = []
         for item in chain:
             if isinstance(item, Unprepared):
-                new_chain.append(await item.prepare(network, utype))
+                for c in range(retry_count):
+                    try:
+                        new_chain.append(await item.prepare(network, utype))
+                        break
+                    except ResourceBrokenError as e:
+                        logger.warning(f"Resource '{e}' broken, retry {c} times now")
+                else:
+                    logger.error("all attempting failed, give up")
             else:
                 new_chain.append(item)
         return new_chain
@@ -60,3 +68,4 @@ async def async_retry(coro: Callable[[], Coroutine], count: int, *, loop=None) -
             else:
                 return True
     return False
+

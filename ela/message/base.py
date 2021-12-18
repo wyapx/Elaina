@@ -2,9 +2,11 @@ from abc import abstractmethod
 from enum import Enum
 from pathlib import Path
 from typing import Optional, Type, BinaryIO
+from io import BytesIO
 
 import aiohttp
 from pydantic import BaseModel, HttpUrl
+from ela.error import ResourceBrokenError
 
 
 class MessageModelTypes(str, Enum):
@@ -80,8 +82,7 @@ class UnpreparedResource(Unprepared):
     def _check_state(data: dict):
         if "code" not in data:
             return data
-        else:
-            raise ConnectionError(data["code"], data["msg"])
+        raise ConnectionError(data["code"], data["msg"])
 
     @staticmethod
     async def upload(network, action: str, utype: str, io: BinaryIO, file_type: str, **extra_field) -> dict:
@@ -90,7 +91,8 @@ class UnpreparedResource(Unprepared):
         form.add_field("type", utype)
         for k, v in extra_field.items():
             form.add_field(k, v)
-        form.add_field(file_type, io)
+        io.seek(0)
+        form.add_field(file_type, BytesIO(io.read()))
         return await network.post(action, data=form)
 
     async def uploadImage(self, network, io: BinaryIO, utype: str):
@@ -111,4 +113,5 @@ class UnpreparedResource(Unprepared):
             async with aiohttp.request("GET", ret.url) as resp:
                 if resp.status == 200 and resp.content_length:
                     return ret
-                raise Exception("resource broken")
+                raise ResourceBrokenError(resp.status, ret.url)
+
