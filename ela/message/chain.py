@@ -4,7 +4,7 @@ from typing import List, Union, Type, Optional, Any, Tuple, Generator, Iterable
 from pydantic import BaseModel, validator
 
 from .base import MessageModel, RemoteResource, MessageModelTypes, Unprepared
-from .models import message_model
+from .models import message_model, Source
 
 MODEL_ARGS = Type[Union[RemoteResource, MessageModel]]
 
@@ -26,15 +26,26 @@ class MessageChain(BaseModel):
 
     def get_first_model(self, model_type: Union[Tuple[MODEL_ARGS], MODEL_ARGS]) \
             -> Union[MessageModel, RemoteResource, None]:
-        for item in self.__root__:
+        for item in self:
             if isinstance(item, model_type):
                 return item
 
     def get_all_model(self, model_type: Union[Tuple[MODEL_ARGS], MODEL_ARGS]) \
             -> Generator[Union[RemoteResource, MessageModel], None, None]:
-        for item in self.__root__:
+        for item in self:
             if isinstance(item, model_type):
                 yield item
+
+    def get_source(self) -> Optional[Source]:
+        return self.__root__[0] if isinstance(self.__root__[0], Source) else None
+
+    def get_forward(self) -> Optional[List["MessageNode"]]:
+        if Forward in self:
+            return self[0].nodeList
+
+    def get_quote(self) -> Optional["Quote"]:
+        if Quote in self:
+            return self[0]
 
     def __add__(self, value):
         if isinstance(value, MessageModel):
@@ -45,16 +56,29 @@ class MessageChain(BaseModel):
             return self
 
     def __iter__(self):
-        yield from self.__root__
+        if self.__root__:
+            if isinstance(self.__root__[0], Source):
+                yield from self.__root__[1:]
+            else:
+                yield from self.__root__
 
     def __getitem__(self, index):
-        return self.__root__[index]
+        if self.__root__:
+            if isinstance(self.__root__[0], Source):
+                return self.__root__[1+index]
+            return self.__root__[index]
 
     def __len__(self):
         return len(self.__root__)
 
     def __str__(self):
-        return "".join([str(item) for item in self.__root__[1:]])
+        return "".join([str(item) for item in self])
+
+    def __contains__(self, item):
+        for e in self.__root__:
+            if isinstance(e, item):
+                return True
+        return False
 
     __repr__ = __str__
 
