@@ -1,4 +1,5 @@
 import os
+import json
 import random
 from enum import Enum
 from io import BytesIO
@@ -192,6 +193,9 @@ class App(MessageModel):
 
     def __init__(self, content: str, **_):
         super(App, self).__init__(content=content)
+
+    def to_dict(self) -> dict:
+        return json.loads(self.content)
 
     def __str__(self):
         return f"[mirai:app:{self.content}]"
