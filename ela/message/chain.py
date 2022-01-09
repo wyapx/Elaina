@@ -37,36 +37,31 @@ class MessageChain(BaseModel):
                 yield item
 
     def get_source(self) -> Optional[Source]:
-        return self.__root__[0] if isinstance(self.__root__[0], Source) else None
+        if Source in self:
+            return self.__root__[0]
 
     def get_forward(self) -> Optional[List["MessageNode"]]:
         if Forward in self:
-            return self[0].nodeList
+            return self.get_first_model(Forward).nodeList
 
     def get_quote(self) -> Optional["Quote"]:
-        if Quote in self:
-            return self[0]
+        return self.get_first_model(Quote)
 
     def __add__(self, value):
         if isinstance(value, MessageModel):
             self.__root__.append(value)
-            return self
         elif isinstance(value, MessageChain):
             self.__root__ += value.__root__
-            return self
+        return self
 
     def __iter__(self):
-        if self.__root__:
-            if isinstance(self.__root__[0], Source):
-                yield from self.__root__[1:]
-            else:
-                yield from self.__root__
+        if Source in self:
+            yield from self.__root__[1:]
+        else:
+            yield from self.__root__
 
     def __getitem__(self, index):
-        if self.__root__:
-            if isinstance(self.__root__[0], Source):
-                return self.__root__[1+index]
-            return self.__root__[index]
+        return self.__root__[index]
 
     def __len__(self):
         return len(self.__root__)
