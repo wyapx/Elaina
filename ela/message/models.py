@@ -205,7 +205,7 @@ class Poke(MessageModel):
     type = MessageModelTypes.Poke
     name: str
 
-    class Type(Enum):
+    class InternalType(Enum):
         SixSixSix = ("SixSixSix", 5, -1)
         ShowLove = ("ShowLove", 2, -1)
         Like = ("Like", 3, -1)
@@ -213,30 +213,37 @@ class Poke(MessageModel):
         FangDaZhao = ("FangDaZhao", 6, -1)
         ChuoYiChuo = ("ChuoYiChuo", 1, -1)
 
+    class Type(str, Enum):
+        ChuoYiChuo = "ChuoYiChuo"
+        BiXin = "BiXin"
+        Rose = "Rose"
+        QiaoMen = "QiaoMen"
+        XinSui = "XinSui"
+        BaoBeiQiu = "BaoBeiQiu"
+        GouYin = "GouYin"
+        SuiPing = "SuiPing"
+        DianZan = "DianZan"
+        FangDaZhao = "FangDaZhao"
+        ShouLei = "ShouLei"
+        RangNiPi = "RangNiPi"
+        ZhaoHuanShu = "ZhaoHuanShu"
+        ZhuaYiXia = "ZhuaYiXia"
+        LiuLiuLiu = "LiuLiuLiu"
+        JeiYin = "JeiYin"
+
     @classmethod
     def random_type(cls):
-        return cls(
-            random.choice(
-                (
-                    cls.Type.SixSixSix,
-                    cls.Type.ShowLove,
-                    cls.Type.ChuoYiChuo,
-                    cls.Type.Like,
-                    cls.Type.FangDaZhao,
-                    cls.Type.Heartbroken
-                )
-            )
-        )
+        return cls(random.choice(list(cls.Type)))
 
     def __init__(self, name: Type, **_):
         if isinstance(name, self.Type):
-            super(Poke, self).__init__(name=name.value[0])
+            super(Poke, self).__init__(name=name.value)
         else:
             super(Poke, self).__init__(name=name)
 
     def __str__(self):
         # mapper: https://github.com/mamoe/mirai/blob/dev/mirai-core-api/src/commonMain/kotlin/message/data/PokeMessage.kt#L60
-        return "[mirai:poke:{0},{1},{2}]".format(*getattr(self.Type, self.name).value)
+        return "[mirai:poke:{0},{1},{2}]".format(*getattr(self.InternalType, self.name).value)
 
 
 class Dice(MessageModel):
