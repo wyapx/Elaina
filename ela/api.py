@@ -40,6 +40,10 @@ class API:
     def ws(self, conn_list: List[aiohttp.ClientWebSocketResponse]):
         self.__ws = conn_list
 
+    @property
+    def network(self) -> Network:
+        return self._network
+
     async def _send_req(self, command: str, content: method.BaseSession, *, subcommmand=None, return_obj=None):
         req_id = secrets.token_hex(8)
         data = method.Request(
