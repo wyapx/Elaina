@@ -1,7 +1,8 @@
-import aiohttp
 import asyncio
 import logging
 from typing import List, Union, Callable, Coroutine
+
+import aiohttp
 
 from .message.base import MessageModel, RemoteResource, Unprepared
 

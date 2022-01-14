@@ -6,8 +6,6 @@ from urllib import parse
 
 import aiohttp
 
-from .utils import assert_success
-
 logger = logging.getLogger(__name__)
 
 

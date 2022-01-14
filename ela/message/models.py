@@ -1,5 +1,5 @@
-import os
 import json
+import os
 import random
 from enum import Enum
 from io import BytesIO
