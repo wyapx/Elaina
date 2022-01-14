@@ -39,12 +39,24 @@ class Network:
             url += f"?{'&'.join([f'{k}={v}' for k, v in params.items()])}"
         return url
 
+    @property
+    def closed(self) -> bool:
+        return self._closed.is_set()
+
     async def close(self):
         self.__running = False
         await self._session.close()
 
     async def wait_closed(self):
         await self._closed.wait()
+
+    async def reset(self):
+        if not self.closed:
+            raise RuntimeError("cannot reset an active connection")
+        self._closed.clear()
+        self._session = aiohttp.ClientSession(loop=self._loop)
+        self.__session_key = None
+        self.__running = True
 
     async def _http_req(self, method: str, url: str, **kwargs):
         async with getattr(self._session, method.lower())(url, **kwargs) as resp:

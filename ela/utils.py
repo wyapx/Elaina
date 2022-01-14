@@ -1,3 +1,4 @@
+import aiohttp
 import asyncio
 import logging
 from typing import List, Union, Callable, Coroutine
@@ -60,3 +61,34 @@ async def async_retry(coro: Callable[[], Coroutine], count: int, *, loop=None) -
             else:
                 return True
     return False
+
+
+async def _run_app(app, close):
+    logger.info("Daemon running")
+    while not close.is_set():
+        logger.debug("Checking availability...")
+        try:
+            async with aiohttp.request("GET", app.network.url) as resp:
+                # todo: connection state support
+                pass
+        except aiohttp.ClientConnectionError:
+            logger.warning("Cannot connect to frontend, retry after 30s")
+            await asyncio.sleep(30)
+            continue
+        logger.debug("Service available")
+        await app.async_run()
+        if not close.is_set():
+            logger.warning("Application exit, restarting")
+            await app.network.reset()
+
+
+def run_app(app):
+    close = asyncio.Event()
+    daemon = _LOOP.create_task(_run_app(app, close), name="daemon")
+    try:
+        _LOOP.run_until_complete(daemon)
+    except KeyboardInterrupt:
+        logger.warning("Interrupt received, stopping...")
+        close.set()
+        _LOOP.run_until_complete(app.close())
+    logger.info("Daemon stopped")
