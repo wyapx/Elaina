@@ -104,11 +104,6 @@ class UnpreparedResource(Unprepared):
         )
 
     async def prepare(self, network, utype):
-        ret = self.resource(
+        return self.resource(
             **(await self.action(network, utype=utype, **self._kwargs))
         )
-        if self._check_resource:
-            async with aiohttp.request("GET", ret.url) as resp:
-                if resp.status == 200 and resp.content_length:
-                    return ret
-                raise Exception("resource broken")
