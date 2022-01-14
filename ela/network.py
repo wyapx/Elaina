@@ -46,6 +46,8 @@ class Network:
     async def close(self):
         self.__running = False
         await self._session.close()
+        if not self.__session_key:
+            self._closed.set()
 
     async def wait_closed(self):
         await self._closed.wait()
