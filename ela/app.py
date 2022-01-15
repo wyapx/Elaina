@@ -78,7 +78,7 @@ class Mirai(API):
                             run_function(
                                 self._route[data["type"]],
                                 self,
-                                getattr(event, data["type"]).create(data)
+                                getattr(event, data["type"]).parse_obj(data)
                             )
                         )
                     else:
