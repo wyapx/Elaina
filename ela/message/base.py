@@ -31,6 +31,10 @@ class MessageModel(BaseModel):
     type: MessageModelTypes
 
 
+class UniqueModel(MessageModel):
+    pass
+
+
 class RemoteResource(BaseModel):
     url: Optional[HttpUrl]
     path: Optional[Path]

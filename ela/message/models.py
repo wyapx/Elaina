@@ -1,11 +1,11 @@
-import json
 import os
 import random
 from enum import Enum
 from io import BytesIO
 from typing import Optional, Union, Literal, BinaryIO
+from pydantic import Json as Json_t
 
-from .base import MessageModel, RemoteResource, MessageModelTypes, UnpreparedResource
+from .base import MessageModel, RemoteResource, MessageModelTypes, UnpreparedResource, UniqueModel
 from ..component.group import Member
 
 
@@ -107,14 +107,14 @@ class Image(MessageModel, RemoteResource):
         return f"[mirai:image:{self.imageId}]"
 
 
-class FlashImage(Image):
+class FlashImage(Image, UniqueModel):
     type = MessageModelTypes.FlashImage
 
     def __str__(self):
         return f"[mirai:flash:{self.imageId}]"
 
 
-class Voice(MessageModel, RemoteResource):
+class Voice(UniqueModel, RemoteResource):
     type = MessageModelTypes.Voice
     length: Optional[int] = 0
     voiceId: Optional[str]
@@ -151,7 +151,7 @@ class Voice(MessageModel, RemoteResource):
         return f"[mirai:voice:{self.voiceId}]"
 
 
-class Xml(MessageModel):
+class Xml(UniqueModel):
     type = MessageModelTypes.Xml
     xml: str
 
@@ -162,7 +162,7 @@ class Xml(MessageModel):
         return f"[mirai:xml:{self.xml}]"
 
 
-class Json(MessageModel):
+class Json(UniqueModel):
     """
     废弃的方法，请使用App代替
     """
@@ -187,21 +187,21 @@ class Json(MessageModel):
         return f"[mirai:json:{self.Json}]"
 
 
-class App(MessageModel):
+class App(UniqueModel):
     type = MessageModelTypes.App
-    content: str
+    content: Json_t
 
     def __init__(self, content: str, **_):
         super(App, self).__init__(content=content)
 
     def to_dict(self) -> dict:
-        return json.loads(self.content)
+        return self.content.__dict__
 
     def __str__(self):
         return f"[mirai:app:{self.content}]"
 
 
-class Poke(MessageModel):
+class Poke(UniqueModel):
     type = MessageModelTypes.Poke
     name: str
 
@@ -246,7 +246,7 @@ class Poke(MessageModel):
         return "[mirai:poke:{0},{1},{2}]".format(*getattr(self.InternalType, self.name).value)
 
 
-class Dice(MessageModel):
+class Dice(UniqueModel):
     type = MessageModelTypes.Dice
     value: int
 
@@ -264,7 +264,7 @@ class Dice(MessageModel):
         return f"[mirai:dice:{self.value}]"
 
 
-class MusicShare(MessageModel):
+class MusicShare(UniqueModel):
     type = MessageModelTypes.MusicShare
     kind: str
     title: str
@@ -289,7 +289,7 @@ class MusicShare(MessageModel):
         return f"[MusicShare::title='{self.title}',musicUrl='{self.musicUrl}']"
 
 
-class File(MessageModel):
+class File(UniqueModel):
     type = MessageModelTypes.File
     name: str
     size: Optional[int]

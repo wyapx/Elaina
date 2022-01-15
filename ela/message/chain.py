@@ -3,7 +3,7 @@ from typing import List, Union, Type, Optional, Any, Tuple, Generator, Iterable
 
 from pydantic import BaseModel, validator
 
-from .base import MessageModel, RemoteResource, MessageModelTypes, Unprepared
+from .base import MessageModel, RemoteResource, MessageModelTypes, Unprepared, UniqueModel
 from .models import message_model, Source
 
 MODEL_ARGS = Type[Union[RemoteResource, MessageModel]]
@@ -13,16 +13,23 @@ class MessageChain(BaseModel):
     __root__: List[Any]
 
     @validator("__root__")
-    def parse_obj(cls, obj):
-        res = []
+    def create(cls, obj):
+        ret = []
+        with_unique = None
         for item in obj:
             if isinstance(item, dict):
-                res.append(message_model[item["type"]].parse_obj(item))
+                ret.append(message_model[item["type"]].parse_obj(item))
             elif isinstance(item, MessageModel):
-                res.append(item)
+                ret.append(item)
             else:
                 raise ValueError(item)
-        return res
+            if isinstance(ret[-1], UniqueModel) and with_unique is None:  # todo: optimized
+                with_unique = True
+            elif isinstance(ret[-1], MessageModel) and not with_unique:
+                with_unique = False
+            else:
+                raise ValueError("UniqueModel detect, but other model found")
+        return ret
 
     def get_first_model(self, model_type: Union[Tuple[MODEL_ARGS], MODEL_ARGS]) \
             -> Union[MessageModel, RemoteResource, None]:
@@ -137,7 +144,7 @@ class ForwardMessage(Unprepared):
         return msg
 
 
-class Forward(MessageModel):
+class Forward(UniqueModel):
     type = MessageModelTypes.Forward
     nodeList: List[MessageNode] = []
 

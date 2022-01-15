@@ -6,8 +6,9 @@ from typing import Union, List, Dict, Callable, BinaryIO
 import aiohttp
 
 from . import method
-from .component.friend import FriendList, Profile
-from .component.group import Group, GroupList, GroupMemberList, FileList, File
+from .component.friend import FriendList, Profile, Friend
+from .component.group import Group, GroupList, GroupMemberList, FileList, File, Member
+from .message.base import MessageModel
 from .message.chain import MessageChain, CacheMessage
 from .method import NewResponse
 from .network import Network
@@ -77,7 +78,7 @@ class API:
             *, quote_msg: T.Source = None
     ) -> int:
         if isinstance(chain, list):
-            chain = MessageChain.parse_obj(await prepare_chain(self._network, "group", chain))
+            chain = MessageChain.create(await prepare_chain(self._network, "group", chain), )
         msg_id = await self._send_req("sendGroupMessage", method.SendMessage(
             target=group,
             quote=quote_msg,
@@ -95,7 +96,7 @@ class API:
             *, quote_msg: T.MessageType = None
     ) -> int:
         if isinstance(chain, list):
-            chain = MessageChain.parse_obj(await prepare_chain(self._network, "friend", chain))
+            chain = MessageChain.create(await prepare_chain(self._network, "friend", chain), )
         msg_id = await self._send_req("sendFriendMessage", method.SendMessage(
             target=friend,
             quote=quote_msg,
@@ -114,7 +115,7 @@ class API:
             *, quote_msg: T.MessageType = None
     ) -> int:
         if isinstance(chain, list):
-            chain = MessageChain.parse_obj(await prepare_chain(self._network, "temp", chain))
+            chain = MessageChain.create(await prepare_chain(self._network, "temp", chain), )
         msg_id = await self._send_req("sendTempMessage", method.SendTempMessage(
             qq=qq,
             group=group,
@@ -313,3 +314,19 @@ class API:
 
     async def resp_botInvitedJoinGroupRequestEvent(self, resp: Callable[[str], NewResponse]):
         return await self._send_req("resp_botInvitedJoinGroupRequestEvent", resp(self.session_key))
+
+    async def sendMessage(
+            self,
+            target: Union[Group, Friend, Member],
+            chain: Union[MessageChain, List[MessageModel], MessageModel],
+            *, quote_msg: T.Source = None
+    ) -> int:
+        """"""
+        if isinstance(chain, MessageModel):
+            chain = [chain]
+        if isinstance(target, Group):
+            return await self.sendGroupMessage(target, chain, quote_msg=quote_msg)
+        elif isinstance(target, (Friend, Member)):
+            return await self.sendFriendMessage(target, chain, quote_msg=quote_msg)
+        else:
+            raise NotImplementedError("unsupport type " + type(target))
