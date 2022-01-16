@@ -111,3 +111,8 @@ class UnpreparedResource(Unprepared):
         return self.resource(
             **(await self.action(network, utype=utype, **self._kwargs))
         )
+
+
+class Client(BaseModel):
+    id: int
+    platform: Optional[str]

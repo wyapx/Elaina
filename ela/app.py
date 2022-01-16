@@ -6,7 +6,7 @@ import aiohttp
 
 from . import event
 from .api import API
-from .message.type import message_type
+from .message.type import MessageType
 from .timer import Timer
 from .utils import run_function
 
@@ -45,12 +45,12 @@ class Mirai(API):
             data, sync_id = kwargs["data"], kwargs["syncId"]
             if sync_id == "-1":
                 # qq msg
-                if data["type"] not in message_type:
+                if not MessageType.exists(data["type"]):
                     return logger.warning("message %s not supported, ignore" % data["type"])
-                msg = message_type[data["type"]](**data)
-                if msg.type not in self._route:
-                    logger.warning(f"cannot handle {msg.type} message, ignore")
+                elif data["type"] not in self._route:
+                    logger.warning(f"cannot handle {data['type']} message, ignore")
                 else:
+                    msg = MessageType.to_message(data["type"], data)
                     self._timer.executor(
                         run_function(self._route[msg.type], self, msg)
                     )
