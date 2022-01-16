@@ -25,80 +25,76 @@ class Mirai(API):
         return self._timer
 
     def register(self, typ: str):
+        if typ in self._route:
+            raise AttributeError(f"event {typ} already register")
+
         def __(func):
             if not asyncio.iscoroutinefunction(func) and not callable(func):
                 raise ValueError(
                     f"{func.__code__.co_name} is not a callable function"
                 )
-            elif typ in self._route:
-                raise AttributeError(f"event {typ} already register")
             self._route[typ] = func
 
         return __
 
-    async def _handle_msg(self, **kwargs):
-        if "code" in kwargs:
-            """an error raise"""
-            return logger.debug(kwargs["code"], kwargs["msg"])
-        elif "syncId" in kwargs:
-            # a message receive
-            data, sync_id = kwargs["data"], kwargs["syncId"]
-            if sync_id == "-1":
-                # qq msg
-                if not MessageType.exists(data["type"]):
-                    return logger.warning("message %s not supported, ignore" % data["type"])
-                elif data["type"] not in self._route:
-                    logger.warning(f"cannot handle {data['type']} message, ignore")
+    @staticmethod
+    def _common_handle(inbound_handle, outbound_handle):
+        async def inner(data: dict):
+            if "code" in data:
+                """an error raise"""
+                return logger.error(data["code"], data["msg"])
+            elif "syncId" in data:
+                # a message receive
+                data, sync_id = data["data"], data["syncId"]
+                if sync_id == "-1":
+                    return await inbound_handle(data["type"], data)
                 else:
-                    msg = MessageType.to_message(data["type"], data)
-                    self._timer.executor(
-                        run_function(self._route[msg.type], self, msg)
-                    )
-            else:
-                # result
-                if sync_id not in self._msg_future:
-                    logger.warning(
-                        "syncId %s not found" % sync_id
-                    )
-                else:
-                    self._msg_future.pop(sync_id).set_result(data)
+                    return await outbound_handle(data, sync_id)
+        return inner
 
-    async def _handle_ev(self, **kwargs):
-        if "code" in kwargs:
-            """an error raise"""
-            return logger.debug(kwargs["code"], kwargs["msg"])
-        elif "syncId" in kwargs:
-            # a message receive
-            data, sync_id = kwargs["data"], kwargs["syncId"]
-            if sync_id != -1:
-                # event
-                if data["type"] in dir(event):
-                    if data["type"] in self._route:
-                        self._timer.executor(
-                            run_function(
-                                self._route[data["type"]],
-                                self,
-                                getattr(event, data["type"]).parse_obj(data)
-                            )
-                        )
-                    else:
-                        logger.warning(f"cannot handle {data['type']} event, ignore")
-                else:
-                    logger.warning(f"event {data['type']} not found, ignore")
-            else:
-                # result
-                if sync_id not in self._msg_future:
-                    logger.warning(
-                        "syncId %s not found" % sync_id
+    async def _inbound_message(self, data_type: str, data: dict):
+        # qq msg
+        if not MessageType.exists(data_type):
+            return logger.warning("message %s not supported, ignore" % data["type"])
+        elif data_type not in self._route:
+            logger.warning(f"cannot handle {data_type} message, ignore")
+        else:
+            msg = MessageType.to_message(data_type, data)
+            self._timer.executor(
+                run_function(self._route[msg.type], self, msg)
+            )
+
+    async def _inbound_event(self, data_type: str, data: dict):
+        # event
+        if data_type in dir(event):
+            if data_type in self._route:
+                self._timer.executor(
+                    run_function(
+                        self._route[data_type], self,
+                        getattr(event, data_type).parse_obj(data)
                     )
-                else:
-                    self._msg_future.pop(sync_id).set_result(data)
+                )
+            else:
+                logger.warning(f"cannot handle {data_type} event, ignore")
+        else:
+            logger.warning(f"event {data_type} not found, ignore")
+
+    async def _outbound_receiver(self, data: dict, sync_id: str):
+        # result
+        if sync_id not in self._msg_future:
+            logger.warning("syncId %s not found" % sync_id)
+        else:
+            self._msg_future.pop(sync_id).set_result(data)
 
     async def _connect(self) -> bool:
         try:
             self.ws = [
-                await self._network.websocket("/message", self._handle_msg),
-                await self._network.websocket("/event", self._handle_ev)
+                await self._network.websocket(
+                    "/message", self._common_handle(self._inbound_message, self._outbound_receiver)
+                ),
+                await self._network.websocket(
+                    "/event", self._common_handle(self._inbound_event, self._outbound_receiver)
+                )
             ]
         except aiohttp.ClientConnectorError:
             logger.exception("Connection Error")

@@ -87,9 +87,7 @@ class Network:
             if msg.type == aiohttp.WSMsgType.TEXT:
                 if connected:
                     try:
-                        await callback(
-                            **json.loads(msg.data)
-                        )
+                        await callback(json.loads(msg.data))
                     except:
                         logger.exception(f"({name}): Callback raise an error")
                         logger.debug(msg.data)
@@ -112,6 +110,8 @@ class Network:
                 break
             elif msg.type == aiohttp.WSMsgType.PONG:
                 ping_count = 0
+            else:
+                logger.error(f"websocket({name}): unknown type {msg.type} received")
 
     def __done_cb(self, context: asyncio.Task):
         self.__ws_count -= 1
