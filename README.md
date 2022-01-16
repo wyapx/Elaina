@@ -29,5 +29,8 @@ async def on_groupmessage(app: Mirai, ev):
         
 if __name__ == '__main__':
     mirai_app.run()
+    # 若要启用断线重连，请使用下面的代码
+    #from ela.utils import run_app
+    #run_app(mirai_app)
 ```
 
