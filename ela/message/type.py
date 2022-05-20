@@ -25,9 +25,7 @@ class BaseMessageType(BaseModel):
 
     @property
     def group(self) -> Optional[Group]:
-        if isinstance(self.sender, Member):
-            return self.sender.group
-        return None
+        return self.sender.group if isinstance(self.sender, Member) else None
 
 
 class FriendMessage(BaseMessageType):

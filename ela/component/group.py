@@ -117,10 +117,7 @@ class File(BaseModel):
     async def download_file(self, save_path: str, verify_file=False):
         if not self.downloadInfo:
             raise AttributeError("downloadInfo not found")
-        if verify_file:
-            vf = hashlib.sha1()
-        else:
-            vf = None
+        vf = hashlib.sha1() if verify_file else None
         try:
             with open(save_path, "wb") as fd:
                 async with aiohttp.request("GET", self.downloadInfo.url) as resp:
@@ -131,10 +128,9 @@ class File(BaseModel):
         except:
             os.remove(save_path)
             raise
-        if verify_file:
-            if vf.hexdigest() != self.downloadInfo.sha1.lower():
-                os.remove(save_path)
-                raise NotImplementedError(vf.hexdigest(), self.downloadInfo.sha1.lower(), "not match")
+        if verify_file and vf.hexdigest() != self.downloadInfo.sha1.lower():
+            os.remove(save_path)
+            raise NotImplementedError(vf.hexdigest(), self.downloadInfo.sha1.lower(), "not match")
 
 
 class FileList(BaseModel):

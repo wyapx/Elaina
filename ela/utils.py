@@ -25,23 +25,19 @@ def assert_success(data: dict, return_obj=None):
             raise ValueError("empty element")
     elif data["code"] != 0:
         raise ConnectionError(data["code"], data["msg"])
-    if return_obj:
-        return data.get(return_obj)
-    else:
-        return data
+    return data.get(return_obj) if return_obj else data
 
 
 async def prepare_chain(network, utype: str, chain) -> List[Union[MessageModel, RemoteResource]]:
-    if isinstance(chain, list):
-        new_chain: List[Union[MessageModel, RemoteResource]] = []
-        for item in chain:
-            if isinstance(item, Unprepared):
-                new_chain.append(await item.prepare(network, utype))
-            else:
-                new_chain.append(item)
-        return new_chain
-    else:
-        raise TypeError("expect list chain, but %s got" % type(chain))
+    if not isinstance(chain, list):
+        raise TypeError(f"expect list chain, but {type(chain)} got")
+    new_chain: List[Union[MessageModel, RemoteResource]] = []
+    for item in chain:
+        if isinstance(item, Unprepared):
+            new_chain.append(await item.prepare(network, utype))
+        else:
+            new_chain.append(item)
+    return new_chain
 
 
 def call_later(delay: int, func, *args, **kwargs) -> asyncio.TimerHandle:
@@ -55,8 +51,7 @@ async def async_retry(coro: Callable[[], Coroutine], count: int, *, loop=None) -
     while count >= 0:
         task = loop.create_task(coro())
         if await task:
-            err = task.exception()
-            if err:
+            if task.exception():
                 logger.exception(f"function {coro} raise an error, {count} times remain")
                 count -= 1
             else:

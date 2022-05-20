@@ -55,7 +55,7 @@ class Mirai(API):
     async def _inbound_message(self, data_type: str, data: dict):
         # qq msg
         if not MessageType.exists(data_type):
-            return logger.warning("message %s not supported, ignore" % data["type"])
+            return logger.warning(f'message {data["type"]} not supported, ignore')
         elif data_type not in self._route:
             logger.warning(f"cannot handle {data_type} message, ignore")
         else:
@@ -82,7 +82,7 @@ class Mirai(API):
     async def _outbound_receiver(self, data: dict, sync_id: str):
         # result
         if sync_id not in self._msg_future:
-            logger.warning("syncId %s not found" % sync_id)
+            logger.warning(f"syncId {sync_id} not found")
         else:
             self._msg_future.pop(sync_id).set_result(data)
 

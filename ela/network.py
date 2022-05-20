@@ -97,10 +97,9 @@ class Network:
                         data = pkg["data"]
                         if data["code"]:
                             raise ConnectionError(data.pop("code"), data)
-                        else:
-                            self.__session_key = data["session"]
-                            logger.debug(f"websocket({name}): connected")
-                            connected = True
+                        self.__session_key = data["session"]
+                        logger.debug(f"websocket({name}): connected")
+                        connected = True
             elif msg.type in (aiohttp.WSMsgType.CLOSE, aiohttp.WSMsgType.CLOSED):
                 logger.debug(f"websocket({name}): closed")
                 await self.close()
@@ -123,7 +122,7 @@ class Network:
         if not name:
             name = target
         link = self.__join_url(target, {"qq": self.qq, "verifyKey": self.__verify_key}).replace("http", "ws")
-        logger.debug("connecting to " + link)
+        logger.debug(f"connecting to {link}")
         ws = await self._session.ws_connect(link, autoping=False)
         self._loop.create_task(
             self._websocket_listen(ws, callback, name)

@@ -77,10 +77,7 @@ class MessageChain(BaseModel):
         return "".join([str(item) for item in self])
 
     def __contains__(self, item):
-        for e in self.__root__:
-            if isinstance(e, item):
-                return True
-        return False
+        return any(isinstance(e, item) for e in self.__root__)
 
     __repr__ = __str__
 
