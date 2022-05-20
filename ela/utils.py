@@ -51,7 +51,7 @@ async def async_retry(coro: Callable[[], Coroutine], count: int, *, loop=None) -
     while count >= 0:
         task = loop.create_task(coro())
         if await task:
-            if err := task.exception():
+            if task.exception():
                 logger.exception(f"function {coro} raise an error, {count} times remain")
                 count -= 1
             else:
