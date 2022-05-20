@@ -329,4 +329,4 @@ class API:
         elif isinstance(target, (Friend, Member)):
             return await self.sendFriendMessage(target, chain, quote_msg=quote_msg)
         else:
-            raise NotImplementedError("unsupport type " + type(target))
+            raise NotImplementedError(f"unsupport type {type(target)}")
